@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/xlr8-hub-websocket/static/css/main.cfdbad1c.css",
-    "main.js": "/xlr8-hub-websocket/static/js/main.323683ad.js",
+    "main.css": "/xlr8-hub-websocket/static/css/main.1b17ae68.css",
+    "main.js": "/xlr8-hub-websocket/static/js/main.cc6cd062.js",
     "static/js/787.6a16a87d.chunk.js": "/xlr8-hub-websocket/static/js/787.6a16a87d.chunk.js",
     "static/media/logo.svg": "/xlr8-hub-websocket/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/xlr8-hub-websocket/index.html",
-    "main.cfdbad1c.css.map": "/xlr8-hub-websocket/static/css/main.cfdbad1c.css.map",
-    "main.323683ad.js.map": "/xlr8-hub-websocket/static/js/main.323683ad.js.map",
+    "main.1b17ae68.css.map": "/xlr8-hub-websocket/static/css/main.1b17ae68.css.map",
+    "main.cc6cd062.js.map": "/xlr8-hub-websocket/static/js/main.cc6cd062.js.map",
     "787.6a16a87d.chunk.js.map": "/xlr8-hub-websocket/static/js/787.6a16a87d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.cfdbad1c.css",
-    "static/js/main.323683ad.js"
+    "static/css/main.1b17ae68.css",
+    "static/js/main.cc6cd062.js"
   ]
 }
