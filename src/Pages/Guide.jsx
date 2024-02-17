@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import "./Elements.css"
 import kara from "./kara.png"
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import connor from "./connor.png"
 const SERVER = constants.SERVER;
 const Guide = ()=>{
     const [currentPrompt,setCurrentPrompt] = useState("")
@@ -82,8 +83,8 @@ const Guide = ()=>{
               </div>
               <div className={`chat-container ${ele.animate ? 'fadeInAnimation active' : ''}`}>
               <div className="flex-box">
-              <img src = {kara} className="avatar"></img>
-              <p class="username">Kara</p>
+              <img src = {connor} className="avatar"></img>
+              <p class="username">Connor</p>
               </div>
               <div>
               <EquationParser text ={ele.response}

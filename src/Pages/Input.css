@@ -115,3 +115,6 @@ input{
     border: solid 2px var(--primary-card-bg);
     color:whitesmoke;
 }
+.prompt-input .form-label{
+    font-size: 1.5rem;
+}
