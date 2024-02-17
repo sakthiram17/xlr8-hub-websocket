@@ -1,0 +1,67 @@
+.control-panel {
+    border: 1px solid black;
+    border-radius: 8px;
+  
+    padding: 20px;
+    margin: 20px;
+    background-color: var(--primary-card-bg);
+   
+    width: min(80vw,600px);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    background-color:var(--primary-card-bg);
+    box-shadow: 0 7px 20px 5px #3d3d3d88;
+    
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+ 
+    
+  }
+  
+  /* Styling for the buttons inside the control panel */
+
+  html{
+
+    background-color: rgb(0, 0, 0);
+  }
+  .small-flex-box{
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding:2rem;
+    background-color:  var(--primary-card-bg);
+    border-radius: .7rem;
+    width: min(80vw,600px);
+ 
+  }
+  .control-panel *{
+    font-size: 1.5rem;
+  }
+  .control-page{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  .control-page{
+    display: flex;
+    flex-flow: wrap;
+  }
+  @media only screen 
+  and (max-device-width : 768px) 
+   {
+      .widgets{
+        display: flex;
+        flex-direction: column;
+      }
+      .control-page *{
+        font-size: 1rem;
+      }
+    /* Styles */
+  }
