@@ -27,14 +27,16 @@ const Guide = ()=>{
       }).catch((err)=>{
         setPromptResult(err.message)
       })
-     
+     return ()=>{
+      setResponseObject([])
+     }
 
     },[])
 
     useEffect(() => {
       // Add the animation class after a short delay to ensure smooth transitions
       const timeoutId = setTimeout(() => {
-        if(temp.length>=1)
+        if(responseObject.length>=1)
         {
         const temp = [...responseObject];
         temp[temp.length - 1].animate = true;
@@ -47,7 +49,17 @@ const Guide = ()=>{
     const promptChangeHandler = (event)=>{
         setCurrentPrompt(event.target.value);
       }
+    const submitForm = (event)=>{
+      if(event.key==='Enter')
+      {
+        sendPrompt();
+      }
+
+    }
       const sendPrompt = ()=>{
+        let temp =[...responseObject];
+          temp.push({question:currentPrompt,response:null})
+          setResponseObject(temp)
         axios.post(SERVER+'prompt',{
           prompt:currentPrompt
         }).then(res=>{
@@ -62,15 +74,16 @@ const Guide = ()=>{
   
       }
 
-
+   
     return(
           <div className="guide-page">
         
      
           {responseObject?responseObject.map((ele,index)=>{
+            
             return (
             <React.Fragment>
-             <div className={`chat-container ${ele.animate ? 'fadeInAnimation active' : ''}`}>
+             <div className={`chat-container ${ele.animate ? 'fadeInAnimation' : 'fadeInAnimation-active'}`}>
               <div className="flex-box">
               <img src = {dp} className="avatar"></img>
               <p class="username">You</p>
@@ -81,7 +94,7 @@ const Guide = ()=>{
               ></EquationParser>
               </div>
               </div>
-              <div className={`chat-container ${ele.animate ? 'fadeInAnimation active' : ''}`}>
+              {ele.response?<div className={`chat-container ${ele.animate ? 'fadeInAnimation' : 'fadeInAnimation-active'}`}>
               <div className="flex-box">
               <img src = {connor} className="avatar"></img>
               <p class="username">Connor</p>
@@ -91,7 +104,7 @@ const Guide = ()=>{
               show = {promptRes?true:false}
               ></EquationParser>
               </div>
-              </div>
+              </div> : null}
 
               </React.Fragment>
               )
@@ -104,14 +117,14 @@ const Guide = ()=>{
          place = "Title "
          valid = {true}
          ind = {0}
-        
+          onkeydown = {submitForm}
          handleChange= {promptChangeHandler}
         
         >
           </Input>
-          <p onClick = {sendPrompt}>
-          <FontAwesomeIcon icon={faPaperPlane} />
-          </p>
+          <Button onClick = {sendPrompt}>
+            {<FontAwesomeIcon icon = {faPaperPlane}></FontAwesomeIcon>}
+          </Button>
           </div>
           </div>
           

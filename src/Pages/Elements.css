@@ -206,6 +206,8 @@ html{
   color:white;
   background-color: var(--primary-card-bg);
   display: block;
+  border-radius: 1rem;
+  font-size: 1.3rem;
 }
 .avatar {
   width: 80px; /* Adjust the size as needed */
@@ -221,12 +223,14 @@ html{
   font-size: 1.5rem;
 }
 .fadeInAnimation {
-  opacity: 0;
-  transform: translateY(20px); /* Optional: Add a vertical slide effect */
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  opacity: 1;
+  transform: scale(1);
+  transition: 0.15s;
+ 
 }
 
-.fadeInAnimation.active {
-  opacity: 1;
-  transform: translateY(0);
+.fadeInAnimation-active {
+  opacity: 0;
+  transform: scale(0.1);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }

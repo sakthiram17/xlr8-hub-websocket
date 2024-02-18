@@ -81,8 +81,10 @@ const Input = (props)=>{
             className= {props.valid?"form-number":"form-number invalid"}
             onChange={props.handleChange}
             index = {props.ind}
-            placeholder={props.placeholder}>
-    
+            placeholder={props.placeholder}
+            onKeyDown={props.onkeydown}
+            >
+        
             </input>
             </div>)
 
