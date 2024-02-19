@@ -83,7 +83,7 @@ const Guide = ()=>{
             
             return (
             <React.Fragment>
-             <div className={`chat-container ${ele.animate ? 'fadeInAnimation' : 'fadeInAnimation-active'}`}>
+             <div key = {index*2+1}className={`chat-container ${ele.animate ? 'fadeInAnimation' : 'fadeInAnimation-active'}`}>
               <div className="flex-box">
               <img src = {dp} className="avatar"></img>
               <p class="username">You</p>
@@ -95,7 +95,7 @@ const Guide = ()=>{
               </div>
               </div>
               {ele.response?<div className={`chat-container ${ele.animate ? 'fadeInAnimation' : 'fadeInAnimation-active'}`}>
-              <div className="flex-box">
+              <div key = {index*2} className="flex-box">
               <img src = {connor} className="avatar"></img>
               <p class="username">Connor</p>
               </div>
