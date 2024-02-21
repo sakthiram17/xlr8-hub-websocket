@@ -1,6 +1,7 @@
 
 import "./Input.css"
 import react from "react";
+import Button from "../UI/Button";
 const Input = (props)=>{
     if(props.type=='number')
     {
@@ -88,6 +89,25 @@ const Input = (props)=>{
             </input>
             </div>)
 
+    }
+    else if(props.type === 'file')
+    {
+        return(
+            <div className={props.col?'form-input-col':'form-input'}>
+
+            <input type="file" id="myfile" name="myfile"
+            onChange={props.handleChange}
+            index = {props.ind}
+            placeholder={props.placeholder}
+            ></input>
+            <div style = {{margin:'1rem'}}>
+            <Button onClick = {()=>{
+                document.getElementById('myfile').click()
+
+            }}>Import Data</Button>
+            </div>
+            </div>
+        )
     }
     else{
         return( 

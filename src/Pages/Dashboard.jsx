@@ -16,6 +16,7 @@ import Modal from "../UI/Modal.jsx"
 import WordAnimation from "./WordAnimation.jsx";
 import EquationParser from "./EquationsParser.jsx";
 import constants from "../Constants.jsx";
+
 const SERVER = constants.SERVER;
 const BASE_URL = constants.SERVER;
 const lineWidth = 2;
@@ -105,6 +106,7 @@ function reduceArrayToFixedSize(originalArray, fixedSize) {
  
 const DashBoard = (props)=>{
     const [spinner,setSpinner ] = useState(null)
+    const [selectedFile, setSelectedFile] = useState(null);
     const {dataPoints,dispatch} = useDataContext();
     const [fileteredData,setFilteredData ] = useState([]);
     const [duration,setDuration] = useState(500);
@@ -119,7 +121,32 @@ const DashBoard = (props)=>{
     const [modalState,setModalState] = useState(null)
     const [width,getWidth] = useState(window.innerWidth)
     const [is_small,setIsSmall] = useState(false)
-
+    const handleFileChange = (event) => {
+      const file = event.target.files[0];
+      console.log(event.target.files[0]);
+      setSelectedFile(file);
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = (e) => {
+          console.log('reading');
+          // The result property contains the file's contents as a data URL
+          const fileContents = e.target.result;
+      
+          try {
+            // Parse the file contents as JSON
+            const jsonData = JSON.parse(fileContents);
+            console.log('Parsed JSON Data:', jsonData);
+      
+            // Update state with the parsed JSON data
+            console.log(jsonData);
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
+          }
+        }
+      }
+        
+    };
     useEffect(()=>{
         window.addEventListener('resize',()=>{
             getWidth(window.innerWidth)
@@ -334,6 +361,21 @@ const DashBoard = (props)=>{
         onClick = {postResolution}
         >Set Resolution</Button>
         {modalState}
+       <div className="data-card">
+       <span className="checkbox-label">
+            Data Fetcher
+        </span>
+        <Input type = 'file'
+         label = 'Import Data'
+         handleChange = {handleFileChange}
+         ></Input>
+        <input type = "datetime-local" onChange = {handleDateChange}>
+        </input>
+        <Button
+        onClick = {dataFilter}
+        >Filter by Time</Button>
+        <p>Selected File : {selectedFile?selectedFile.name:'--'}</p>
+      </div>
        <div  className="data-card">
         <div className="generic-text-label">
           Resolution : {sampleSize} ms
