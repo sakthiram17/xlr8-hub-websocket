@@ -160,30 +160,10 @@ const Logs = () => {
         <input type="datetime-local" onChange={handleEndDateChange} style = {{margin:'1rem'}}></input>
         <Button onClick={dataFilter}>Filter by Time</Button>
         <p>Selected File : {selectedFile ? selectedFile.name : "--"}</p>
+        <p>Total Data Points : {dataPoints.length}</p>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-evenly", marginBottom:'5rem', width:'min(95vw,1200px)'}}>
-        <ToggleButton
-          label={json ? "json" : "xlsx"}
-          autorefresh={json}
-          onChange={switchHandler}
-        ></ToggleButton>
-        <Button
-          onClick={() => {
-            handleExportToJson({ type: "false" });
-          }}
-        >
-          Export Outliers
-        </Button>
-        <Button
-          inverse={true}
-          onClick={() => {
-            handleExportToJson({ type: "all" });
-          }}
-        >
-          Export All data Points
-        </Button>
-        <Button onClick={handleExportClick}>Export PV Curve</Button>
-      </div>
+     
+      <h1>Data Points in Tabular Form</h1>
       <ToggleButton
           label={isOutliersOnly ? "Outliers" : "Entire Data"}
           autorefresh={isOutliersOnly}
@@ -230,6 +210,29 @@ const Logs = () => {
       <ul className="page-crumbs">
       {pageCrumbs}
       </ul>
+      <div style={{ display: "flex", justifyContent: "space-evenly", marginBottom:'5rem', width:'min(95vw,1200px)'}}>
+        <ToggleButton
+          label={json ? "json" : "xlsx"}
+          autorefresh={json}
+          onChange={switchHandler}
+        ></ToggleButton>
+        <Button
+          onClick={() => {
+            handleExportToJson({ type: "false" });
+          }}
+        >
+          Export Outliers
+        </Button>
+        <Button
+          inverse={true}
+          onClick={() => {
+            handleExportToJson({ type: "all" });
+          }}
+        >
+          Export All data Points
+        </Button>
+        <Button onClick={handleExportClick}>Export PV Curve</Button>
+      </div>
     </div>
   );
 };
