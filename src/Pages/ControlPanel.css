@@ -17,7 +17,8 @@
     -webkit-backdrop-filter: blur(7px);
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0,0,0,0.4);
- 
+    justify-content: center;
+ align-items: center;
     
   }
   
