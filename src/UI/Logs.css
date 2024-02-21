@@ -7,6 +7,7 @@
 
     color:white;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    margin-bottom: 2rem;
   }
   .logs{
     color:white;
@@ -20,7 +21,7 @@
     font-weight: bold;
     font-size: 1.2rem;
     color: white;
-    text-align: left;
+    text-align:  center;
   }
   .styled-table th,
   .styled-table td {
@@ -65,4 +66,35 @@ and (max-device-width : 768px)
   }
 
   /* Styles */
+}
+.page-crumbs ul{
+  text-decoration: none;
+  margin:0;
+  padding:0;
+  display: flex;
+ 
+}
+.page-crumbs li{
+  text-decoration: none;
+  padding: 0.2em 1em 0.2em 1em;
+  display: inline-block;
+  color:var(--navtext);
+  transition: 0.15s;
+  vertical-align: middle;
+  margin-left: 20px;
+  min-width: 5rem;
+  border-radius: 0.3rem;
+  margin: 1rem;
+}
+
+.page-crumbs .crumb:hover{
+  color:white;
+  transform: translateY(-10px);
+  border-radius: 3px;
+  background-color:var(--secondary-nav); ;
+
+}
+.page-crumbs .active{
+  color:white;
+  background-color:var(--secondary-nav);
 }

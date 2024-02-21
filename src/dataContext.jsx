@@ -13,9 +13,10 @@ const actionHandler = (state,action)=>{
               
                      return temp;
         case 'FILTER' : temp = [...state];
-                         console.log(temp,state)
                         temp = temp.filter((ele)=>{
-                          return new Date(ele.current_time).getTime() <= action.date.getTime();
+                          return new Date(ele.current_time).getTime() >= action.startDate.getTime() && (
+                            new Date(ele.current_time).getTime() <= action.endDate.getTime()
+                          );
                         })
                         temp.sort((a,b)=>{
                           return new Date(a.current_time).getTime()- new Date(b.current_time).getTime()

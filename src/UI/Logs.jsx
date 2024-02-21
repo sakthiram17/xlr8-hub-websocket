@@ -11,13 +11,16 @@ import Input from "../Pages/Input.jsx";
 const Logs = () => {
   const { dataPoints, dispatch } = useDataContext();
   const [json, setJson] = useState(false);
-  const [fileteredData, setFilteredData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-
+  const [isOutliersOnly,setOutliersOnly] = useState(true);
+  const [currentPage,setCurrentPage] = useState(1);
   const switchHandler = (event) => {
     setJson(event.target.checked);
+  };
+  const dataPointsSwitchHandler = (event) => {
+    setOutliersOnly(event.target.checked);
   };
   const handleDateChange = (event) => {
     setStartDate(new Date(event.target.value));
@@ -26,7 +29,7 @@ const Logs = () => {
     setEndDate(new Date(event.target.value));
   };
   const dataFilter = () => {
-    dispatch({ type: "FILTER", date: dateObject });
+    dispatch({ type: "FILTER", startDate: startDate,endDate:endDate });
   };
   let logs = dataPoints
     .filter((ele) => {
@@ -42,7 +45,12 @@ const Logs = () => {
       }
       return outlier == true;
     })
-    .slice(0, 40);
+    
+  if(!isOutliersOnly)
+  {
+    logs = dataPoints;
+  }
+  let filteredLogs = logs.slice((currentPage-1)*20,(currentPage*20))
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     console.log(event.target.files[0]);
@@ -80,6 +88,9 @@ const Logs = () => {
         }
       };
     }
+    setTimeout(()=>{
+      setSelectedFile(null)
+    },1000)
   };
 
   // Function to handle the export button click
@@ -124,6 +135,15 @@ const Logs = () => {
       XLSX.writeFile(wb, "exported_data.xlsx");
     }
   };
+  let pageCrumbs = [];
+  for(let i = 0;i<parseInt(logs.length/20);i++)
+  {
+
+      pageCrumbs.push(<li onClick = {()=>{
+        setCurrentPage(i+1)
+      }} className={currentPage==i+1?'active':'crumb'}>{i+1}</li>)
+    
+  }
 
   return (
     <div className="logs">
@@ -135,52 +155,13 @@ const Logs = () => {
           handleChange={handleFileChange}
         ></Input>
         <p className="generic-text-label">Start Time</p>
-        <input type="datetime-local" onChange={handleDateChange}></input>
+        <input type="datetime-local" onChange={handleDateChange} style = {{margin:'1rem'}}></input>
         <p className="generic-text-label">End Time</p>
-        <input type="datetime-local" onChange={handleEndDateChange}></input>
+        <input type="datetime-local" onChange={handleEndDateChange} style = {{margin:'1rem'}}></input>
         <Button onClick={dataFilter}>Filter by Time</Button>
         <p>Selected File : {selectedFile ? selectedFile.name : "--"}</p>
       </div>
-
-      <table class="styled-table">
-        <thead>
-          <tr>
-            <th>Voltage</th>
-            <th>Current</th>
-            <th>Power</th>
-            <th>Date</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {logs.map((ele) => {
-            const dateObj = new Date(ele.current_time);
-            const formattedDate = `${dateObj
-              .getDate()
-              .toString()
-              .padStart(2, "0")}-${(dateObj.getMonth() + 1)
-              .toString()
-              .padStart(2, "0")}-${dateObj.getFullYear()}`;
-            const formattedTime = `${dateObj.getHours()} : ${dateObj.getMinutes()} : ${dateObj.getSeconds()}`;
-            return (
-              <Log
-                voltage={ele.voltage ? (ele.voltage / 100) * 100 : 0}
-                current={ele.current ? ele.current.toFixed(2) : null}
-                power={
-                  ele.voltage
-                    ? ((ele.voltage * ele.current) / 1000).toFixed(2)
-                    : null
-                }
-                duty_ratio={ele.duty_ratio}
-                date={formattedDate}
-                time={formattedTime}
-                key={Math.random().toString(36).substring(2, 7)}
-              ></Log>
-            );
-          })}
-        </tbody>
-      </table>
-      <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+      <div style={{ display: "flex", justifyContent: "space-evenly", marginBottom:'5rem', width:'min(95vw,1200px)'}}>
         <ToggleButton
           label={json ? "json" : "xlsx"}
           autorefresh={json}
@@ -203,6 +184,52 @@ const Logs = () => {
         </Button>
         <Button onClick={handleExportClick}>Export PV Curve</Button>
       </div>
+      <ToggleButton
+          label={isOutliersOnly ? "Outliers" : "Entire Data"}
+          autorefresh={isOutliersOnly}
+          onChange={dataPointsSwitchHandler}
+        ></ToggleButton>
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>Voltage</th>
+            <th>Current</th>
+            <th>Power</th>
+            <th>Date</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredLogs.map((ele) => {
+            const dateObj = new Date(ele.current_time);
+            const formattedDate = `${dateObj
+              .getDate()
+              .toString()
+              .padStart(2, "0")}-${(dateObj.getMonth() + 1)
+              .toString()
+              .padStart(2, "0")}-${dateObj.getFullYear()}`;
+            const formattedTime = `${dateObj.getHours()} : ${dateObj.getMinutes()} : ${dateObj.getSeconds()}`;
+            return (
+              <Log
+                voltage={ele.voltage ? parseFloat(ele.voltage).toFixed(2)  : 0}
+                current={ele.current ? ele.current.toFixed(2) : null}
+                power={
+                  ele.voltage
+                    ? (parseFloat((ele.voltage * ele.current/1000)).toFixed(2) )
+                    : null
+                }
+                duty_ratio={ele.duty_ratio}
+                date={formattedDate}
+                time={formattedTime}
+                key={Math.random().toString(36).substring(2, 7)}
+              ></Log>
+            );
+          })}
+        </tbody>
+      </table>
+      <ul className="page-crumbs">
+      {pageCrumbs}
+      </ul>
     </div>
   );
 };

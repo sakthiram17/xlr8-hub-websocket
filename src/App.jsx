@@ -36,7 +36,7 @@ function App() {
       break;
       case 'Control Panel' : setPage(<ControlPanel></ControlPanel>)
       break;
-      case 'Outliers' : setPage(<Logs></Logs>)
+      case 'DataHub' : setPage(<Logs></Logs>)
       break;
       case 'Guide' : setPage(<Guide></Guide>)
       break;
@@ -50,7 +50,7 @@ function App() {
     <div className="App">
       <CounterProvider>
        <Navbar
-       list = {["Dashboard","Control Panel","Outliers","Guide"]}
+       list = {["Dashboard","Control Panel","DataHub","Guide"]}
        off = {offSideBar}
        first = "XLR8"
        last = "Hub"
@@ -60,7 +60,7 @@ function App() {
        setSmall = {updateIsSmall}
        ></Navbar>
        <SideBar
-       list = {["Dashboard","Control Panel","Outliers","Guide"]}
+       list = {["Dashboard","Control Panel","DataHub","Guide"]}
        off = {offSideBar}
        first = "XLR8"
        last = "Hub"
