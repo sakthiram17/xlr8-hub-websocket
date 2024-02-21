@@ -6,14 +6,25 @@ import * as XLSX from "xlsx"
 import Button from "./Button.jsx";
 
 import ToggleButton from "../Pages/ToggleButton";
+import Input from "../Pages/Input.jsx";
+
 const Logs = ()=>{
     const {dataPoints,dispatch} = useDataContext();
     const [json,setJson] = useState(false);
     const [fileteredData,setFilteredData] = useState([]);
+    const [selectedFile, setSelectedFile] = useState(null);
+    
     const switchHandler = (event) =>
     {
         setJson(event.target.checked)
     }
+    const handleDateChange = (event)=>{
+        setDateObject(new Date(event.target.value))
+      }
+      const dataFilter = ()=>{
+       
+        dispatch({type : 'FILTER',date : dateObject})
+      }
     let logs = dataPoints.filter(ele=>{
         let outlier = false;
         if (ele.voltage>420 || ele.voltage<380)
@@ -30,7 +41,52 @@ const Logs = ()=>{
         }
         return outlier == true;
     }).slice(0,40);
-
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        console.log(event.target.files[0]);
+        setSelectedFile(file);
+        if (file) {
+          const reader = new FileReader();
+          reader.readAsText(file);
+          reader.onload = (e) => {
+    
+          let parsedData;
+            // The result property contains the file's contents as a data URL
+            const fileContents = e.target.result;
+        
+            try {
+              // Adding Square Brackets to make it a array
+              
+              const lines = fileContents.split('^');
+  
+              // Parse each line as JSON
+              
+              parsedData = [];
+              for(let i = 0;i<lines.length;i++)
+              {
+                
+                try{
+                  let dataPoint = JSON.parse(lines[i]);
+                  parsedData.push(dataPoint)
+                }
+                catch(err)
+                {
+                console.log(err)
+                }
+              }
+  
+            } catch (error) {
+              console.error('Error parsing JSON:', error);
+            }
+            console.log(parsedData)
+            if(parsedData)
+            {
+              dispatch({type :'FETCH',data:parsedData})
+            }
+          }
+        }
+          
+      };
       
 
       // Function to handle the export button click
@@ -84,7 +140,25 @@ const Logs = ()=>{
 
 
         return(
-            <div className = "logs">
+        <div className = "logs">
+        <div className="data-card">
+        <span className="checkbox-label">
+            Data Fetcher
+        </span>
+        <Input type = 'file'
+         label = 'Import Data'
+         handleChange = {handleFileChange}
+         ></Input>
+        <p className="generic-text-label">Start Time</p>
+        <p className="generic-text-label">End Time</p>
+        <input type = "datetime-local" onChange = {handleDateChange}>
+        </input>
+        <Button
+        onClick = {dataFilter}
+        >Filter by Time</Button>
+        <p>Selected File : {selectedFile?selectedFile.name:'--'}</p>
+        </div>
+
             <table class="styled-table">
                <thead>
                 <tr>
@@ -135,6 +209,7 @@ const Logs = ()=>{
                 Export PV Curve
             </Button>
             </div>
+      
             </div>
     
             
