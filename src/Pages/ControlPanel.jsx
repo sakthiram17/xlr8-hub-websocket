@@ -21,7 +21,7 @@ const ControlPanel = () => {
   const [spinner, setSpinner] = useState(null);
   const [currentParamters, setCurrentParameters] = useState({});
   const [formData, setFormData] = useState([null, null, 0, 0, 0]);
-  const [isValid, setValidity] = useState([true, true, true, true, true]);
+  const [isValid, setValidity] = useState([false, false, false, false, false]);
 
   let voltage = dataPoints.length && dataPoints[dataPoints.length - 1].voltage;
   let current = dataPoints.length && dataPoints[dataPoints.length - 1].current;
