@@ -30,7 +30,7 @@ import constants from "../Constants.jsx";
 const SERVER = constants.SERVER;
 const BASE_URL = constants.SERVER;
 const lineWidth = 2;
-
+const MAX_LENGTH = 750
 const brightColors = [
   "#FF6384", // Salmon Pink
   "#FFD700", // Gold
@@ -51,47 +51,38 @@ function formatTimeUnits(value) {
   }
 }
 
-function reduceArrayToFixedSize(originalArray, fixedSize) {
+function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
-
-  const groupedData = originalArray.reduce((accumulator, current) => {
-    const key = current.current_time;
-    /* Calculate the grouping key based on current.current_time */ if (
-      !accumulator[key]
-    ) {
-      accumulator[key] = [];
+  const stepSize = Math.ceil((dataArray.length / fixedSize));
+  let  avgVoltage = 0;
+  let  avgCurrent = 0;
+  let avgDutyRatio =0 ;
+  const  reducedArray = [];
+  console.log("step size",stepSize)
+  reducedArray.push(dataArray[0]);
+  const startTime = new Date(dataArray[0].current_time).getTime();
+  for(var i = 0;i<dataArray.length;i++)
+  {
+    if((i%stepSize==0))
+    {
+      let temp = {...dataArray[i]}
+      temp.time = new Date(dataArray[i].current_time).getTime()-startTime;
+      temp.current = avgCurrent;
+      temp.voltage = avgVoltage;
+      temp.duty_ratio = avgDutyRatio;
+      avgCurrent = avgDutyRatio = avgVoltage=0;
+      reducedArray.push(temp);
     }
-    accumulator[key].push(current);
-    return accumulator;
-  }, {});
-
-  // Step 2: Calculate the average for each group
-  const averagedData = Object.keys(groupedData).map((key) => {
-    const group = groupedData[key];
-    const totalVoltage = group.reduce((sum, data) => sum + data.voltage, 0);
-    const totalCurrent = group.reduce((sum, data) => sum + data.current, 0);
-    const totalDutyRaio = group.reduce((sum, data) => sum + data.duty_ratio, 0);
-
-    const averageVoltage = totalVoltage / group.length;
-    const averageCurrent = totalCurrent / group.length;
-    const avgDuty = totalDutyRaio / group.length;
-
-    return {
-      current_time: key,
-      voltage: averageVoltage,
-      current: averageCurrent,
-      duty_ratio: avgDuty,
-    };
-  });
-
-  // Step 3: Create a new array with the reduced size (500)
-  const step = Math.ceil(averagedData.length / fixedSize);
-  const reducedArray = [];
-  for (let i = 0; i < averagedData.length; i += step) {
-    reducedArray.push(averagedData[i]);
+    else{
+      avgVoltage = avgVoltage + dataArray[i].voltage/stepSize;
+      avgCurrent = avgCurrent+ dataArray[i].current/stepSize;
+      avgDutyRatio = avgDutyRatio + dataArray[i].duty_ratio/stepSize;
+    }
   }
 
-  return reducedArray;
+  // Use reduce to average data points within each step
+  
+return reducedArray;
 }
 
 const initialGraphRanges = [
@@ -130,6 +121,7 @@ const DashBoard = (props) => {
       }
     });
   }, [width, getWidth]);
+
 
   const toggleButtonHandler = (event) => {
     setAutoRefresh(event.target.checked);
@@ -231,7 +223,7 @@ const DashBoard = (props) => {
       // // })
       temp = dataPoints;
       temp = temp.slice(temp.length - duration, temp.length);
-      if (temp.length >= 1) {
+      if (temp.length >= 1 && temp.length) {
         const startTime = new Date(temp[0].current_time).getTime();
 
         for (let i = 0; i < temp.length; i++) {
@@ -240,14 +232,21 @@ const DashBoard = (props) => {
         }
         temp[0].time = 0;
       }
+      let averagedData;
+      if(duration>MAX_LENGTH)
+      {
+       averagedData =  [...reduceArrayToFixedSize(temp,MAX_LENGTH)];
+       return averagedData;
+      }
 
-      //   if(temp.length>=sampleSize)
-      // {
-      //   temp = reduceArrayToFixedSize(temp,sampleSize);
-      // }
       return temp;
     });
+
+   
+    
   }, [dataPoints, duration]);
+
+
   let chartData;
   if (fileteredData && fileteredData.length >= 1) {
     chartData = fileteredData.map((ele) => {
@@ -302,6 +301,19 @@ const DashBoard = (props) => {
         <Button onClick={postResolution}>Set Resolution</Button>
         {modalState}
       </div>
+      <div  className="data-card">
+        <div className="generic-text-label">
+          Resolution : {sampleSize} ms
+        </div>
+        <div className="generic-text-label">
+          DataPoints : {duration}
+        </div>
+        {duration>750?<div className="generic-text-label">
+          Data Compression on
+          <br></br>
+          Ratio : {Math.ceil(duration/750)}
+        </div> :null}
+       </div>
 
       <div>
         <h1>Performance Parameters </h1>
