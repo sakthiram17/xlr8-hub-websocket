@@ -7,15 +7,18 @@ import Button from "./Button.jsx";
 
 import ToggleButton from "../Pages/ToggleButton";
 import Input from "../Pages/Input.jsx";
-
+const TABLE_LENGTH = 20;
 const Logs = () => {
+  const SECTION_SIZE = 8;
   const { dataPoints, dispatch } = useDataContext();
   const [json, setJson] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [isOutliersOnly,setOutliersOnly] = useState(true);
-  const [currentPage,setCurrentPage] = useState(1);
+  const [isOutliersOnly, setOutliersOnly] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentSection, setCurrentSection] = useState(1);
+  const [isValid, setValidity] = useState(true);
   const switchHandler = (event) => {
     setJson(event.target.checked);
   };
@@ -29,28 +32,29 @@ const Logs = () => {
     setEndDate(new Date(event.target.value));
   };
   const dataFilter = () => {
-    dispatch({ type: "FILTER", startDate: startDate,endDate:endDate });
+    dispatch({ type: "FILTER", startDate: startDate, endDate: endDate });
   };
-  let logs = dataPoints
-    .filter((ele) => {
-      let outlier = false;
-      if (ele.voltage > 420 || ele.voltage < 380) {
-        outlier = true;
-      }
-      if (ele.current >= 600) {
-        outlier = true;
-      }
-      if ((ele.current * ele.voltage) / 1000 >= 220) {
-        outlier = true;
-      }
-      return outlier == true;
-    })
-    
-  if(!isOutliersOnly)
-  {
+  let logs = dataPoints.filter((ele) => {
+    let outlier = false;
+    if (ele.voltage > 420 || ele.voltage < 380) {
+      outlier = true;
+    }
+    if (ele.current >= 600) {
+      outlier = true;
+    }
+    if ((ele.current * ele.voltage) / 1000 >= 220) {
+      outlier = true;
+    }
+    return outlier == true;
+  });
+
+  if (!isOutliersOnly) {
     logs = dataPoints;
   }
-  let filteredLogs = logs.slice((currentPage-1)*20,(currentPage*20))
+  let filteredLogs = logs.slice(
+    (currentPage - 1) * TABLE_LENGTH,
+    currentPage * TABLE_LENGTH
+  );
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     console.log(event.target.files[0]);
@@ -88,9 +92,9 @@ const Logs = () => {
         }
       };
     }
-    setTimeout(()=>{
-      setSelectedFile(null)
-    },1000)
+    setTimeout(() => {
+      setSelectedFile(null);
+    }, 1000);
   };
 
   // Function to handle the export button click
@@ -135,15 +139,75 @@ const Logs = () => {
       XLSX.writeFile(wb, "exported_data.xlsx");
     }
   };
-  let pageCrumbs = [];
-  for(let i = 0;i<parseInt(logs.length/20);i++)
-  {
+  let pageCrumbs = [
+    <Button
+      onClick={() => {
+        if (currentSection > 1) {
+          setCurrentSection((prev) => {
+            return prev - 1;
+          });
+        }
+      }}
+    >
+      Prev
+    </Button>,
+    <Button
+      onClick={() => {
+        if (currentSection > 10) {
+          setCurrentSection((prev) => {
+            return prev - 10;
+          });
+        }
+      }}
+    >
+      {"<<"}
+    </Button>,
+  ];
+  let maxVal =
+    ((currentSection + 1) * SECTION_SIZE) % (logs.length / TABLE_LENGTH);
 
-      pageCrumbs.push(<li onClick = {()=>{
-        setCurrentPage(i+1)
-      }} className={currentPage==i+1?'active':'crumb'}>{i+1}</li>)
-    
+  for (
+    let i = (currentSection - 1) * SECTION_SIZE;
+    i < currentSection * SECTION_SIZE;
+    i++
+  ) {
+    pageCrumbs.push(
+      <li
+        onClick={() => {
+          setCurrentPage(i + 1);
+        }}
+        className={currentPage == i + 1 ? "active" : "crumb"}
+      >
+        {i + 1}
+      </li>
+    );
   }
+  pageCrumbs.push(
+    <Button
+      onClick={() => {
+        if (logs.length / TABLE_LENGTH > currentSection + 10) {
+          setCurrentSection((prev) => {
+            return prev + 10;
+          });
+        }
+      }}
+    >
+      {">>"}
+    </Button>
+  );
+  pageCrumbs.push(
+    <Button
+      onClick={() => {
+        if (currentSection * SECTION_SIZE <= logs.length / TABLE_LENGTH) {
+          setCurrentSection((prev) => {
+            return prev + 1;
+          });
+        }
+      }}
+    >
+      Next
+    </Button>
+  );
 
   return (
     <div className="logs">
@@ -155,20 +219,29 @@ const Logs = () => {
           handleChange={handleFileChange}
         ></Input>
         <p className="generic-text-label">Start Time</p>
-        <input type="datetime-local" onChange={handleDateChange} style = {{margin:'1rem'}}></input>
+        <input
+          type="datetime-local"
+          onChange={handleDateChange}
+          style={{ margin: "1rem" }}
+        ></input>
         <p className="generic-text-label">End Time</p>
-        <input type="datetime-local" onChange={handleEndDateChange} style = {{margin:'1rem'}}></input>
+        <input
+          type="datetime-local"
+          onChange={handleEndDateChange}
+          style={{ margin: "1rem" }}
+        ></input>
         <Button onClick={dataFilter}>Filter by Time</Button>
         <p>Selected File : {selectedFile ? selectedFile.name : "--"}</p>
         <p>Total Data Points : {dataPoints.length}</p>
+        <p>Total Pages : {Math.ceil(logs.length / TABLE_LENGTH)}</p>
       </div>
-     
+
       <h1>Data Points in Tabular Form</h1>
       <ToggleButton
-          label={isOutliersOnly ? "Outliers" : "Entire Data"}
-          autorefresh={isOutliersOnly}
-          onChange={dataPointsSwitchHandler}
-        ></ToggleButton>
+        label={isOutliersOnly ? "Outliers" : "Entire Data"}
+        autorefresh={isOutliersOnly}
+        onChange={dataPointsSwitchHandler}
+      ></ToggleButton>
       <table class="styled-table">
         <thead>
           <tr>
@@ -191,11 +264,11 @@ const Logs = () => {
             const formattedTime = `${dateObj.getHours()} : ${dateObj.getMinutes()} : ${dateObj.getSeconds()}`;
             return (
               <Log
-                voltage={ele.voltage ? parseFloat(ele.voltage).toFixed(2)  : 0}
+                voltage={ele.voltage ? parseFloat(ele.voltage).toFixed(2) : 0}
                 current={ele.current ? ele.current.toFixed(2) : null}
                 power={
                   ele.voltage
-                    ? (parseFloat((ele.voltage * ele.current/1000)).toFixed(2) )
+                    ? parseFloat((ele.voltage * ele.current) / 1000).toFixed(2)
                     : null
                 }
                 duty_ratio={ele.duty_ratio}
@@ -208,9 +281,41 @@ const Logs = () => {
         </tbody>
       </table>
       <ul className="page-crumbs">
-      {pageCrumbs}
+        {pageCrumbs}
+        <Input type="number" label="Manually Select Page"
+        valid = {true}
+        handleChange = {(event)=>{
+          const pageNo = event.target.value;
+          
+          
+          if(pageNo<= (logs.length))
+          {
+            if(pageNo<SECTION_SIZE)
+            {
+              setCurrentPage(pageNo)
+              setCurrentSection(1)
+            }
+            else{
+              setCurrentPage(event.target.value-1)
+            setCurrentSection(Math.ceil(event.target.value/TABLE_LENGTH))
+            }
+          }
+
+         
+
+
+        }}
+        ></Input>
       </ul>
-      <div style={{ display: "flex", justifyContent: "space-evenly", marginBottom:'5rem', width:'min(95vw,1200px)'}}>
+      
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          marginBottom: "5rem",
+          width: "min(95vw,1200px)",
+        }}
+      >
         <ToggleButton
           label={json ? "json" : "xlsx"}
           autorefresh={json}
@@ -233,6 +338,7 @@ const Logs = () => {
         </Button>
         <Button onClick={handleExportClick}>Export PV Curve</Button>
       </div>
+      
     </div>
   );
 };

@@ -104,7 +104,7 @@ const DashBoard = (props) => {
   const [autofresh, setAutoRefresh] = useState(false);
   const [isValid, setValidity] = useState(true);
   const [isValid2, setValidity2] = useState(true);
-  const [sampleSize, setSampleSize] = useState(10);
+  const [sampleSize, setSampleSize] = useState(200);
   const [graphHeights, setGraphHeights] = useState(initialGraphHeights);
   const [graphRanges, setGraphRanges] = useState(initialGraphRanges);
   const [modalState, setModalState] = useState(null);
