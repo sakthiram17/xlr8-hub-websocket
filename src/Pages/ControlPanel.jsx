@@ -95,7 +95,7 @@ const ControlPanel = () => {
     setInterval(updateState, 500);
   }, []);
 
-  console.log(currentParamters.mode);
+
   return (
     <div className="control-page">
       {spinner}
@@ -281,7 +281,7 @@ const ControlPanel = () => {
           </Button>
           <Button
             onClick={() => {
-              console.log("ON");
+           
               turnOnSpinner();
               axios
                 .get(SERVER + "soft-start")

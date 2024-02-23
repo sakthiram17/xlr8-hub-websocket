@@ -57,7 +57,6 @@ const Logs = () => {
   );
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    console.log(event.target.files[0]);
     setSelectedFile(file);
     if (file) {
       const reader = new FileReader();
@@ -86,7 +85,6 @@ const Logs = () => {
         } catch (error) {
           console.error("Error parsing JSON:", error);
         }
-        console.log(parsedData);
         if (parsedData) {
           dispatch({ type: "FETCH", data: parsedData });
         }
@@ -185,7 +183,7 @@ const Logs = () => {
   pageCrumbs.push(
     <Button
       onClick={() => {
-        if (logs.length / TABLE_LENGTH > currentSection + 10) {
+        if (Math.floor(logs.length / TABLE_LENGTH) > (currentSection*SECTION_SIZE + 10)) {
           setCurrentSection((prev) => {
             return prev + 10;
           });
@@ -296,8 +294,8 @@ const Logs = () => {
               setCurrentSection(1)
             }
             else{
-              setCurrentPage(event.target.value-1)
-            setCurrentSection(Math.ceil(event.target.value/TABLE_LENGTH))
+              setCurrentPage(event.target.value)
+            setCurrentSection(Math.ceil(event.target.value/SECTION_SIZE))
             }
           }
 

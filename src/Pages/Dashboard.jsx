@@ -40,7 +40,18 @@ const brightColors = [
   "#FFA500", // Orange
   "#1E90FF",
 ];
+const toolTipStyle = {
+  backgroundColor: "rgba(135, 99, 255,0.5)",
+  color: "#8763ff",
+  backdropFilter: "blur(4px)",
+  border:'none',
+  borderRadius : '1rem',
+  fontWeight : 'bold',
+  padding:'0.5rem',
+  paddingLeft:'1rem',
+  paddingRight : '1rem'
 
+}
 function formatTimeUnits(value) {
   if (value < 1000) {
     return value + "ms";
@@ -50,6 +61,31 @@ function formatTimeUnits(value) {
     return (value / 60000).toFixed(2) + "min";
   }
 }
+const CustomTooltip = (props) => {
+  if (props.active && props.payload && props.payload.length) {
+    return (
+      <div className="custom-tooltip" style={toolTipStyle}>
+        <p>  {formatTimeUnits(parseFloat(props.label).toFixed(2))}</p>
+        <p> {parseFloat(props.payload[0].value).toFixed(2)}{props.y}</p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+const PVToolTip = (props) => {
+  if (props.active && props.payload && props.payload.length) {
+    return (
+      <div className="custom-tooltip" style={toolTipStyle}>
+        <p>  {(parseFloat(props.label).toFixed(2))}W</p>
+        <p> {parseFloat(props.payload[0].value).toFixed(2)}V</p>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
@@ -58,8 +94,6 @@ function reduceArrayToFixedSize(dataArray, fixedSize) {
   let  avgCurrent = 0;
   let avgDutyRatio =0 ;
   const  reducedArray = [];
-  console.log("step size",stepSize)
-  reducedArray.push(dataArray[0]);
   const startTime = new Date(dataArray[0].current_time).getTime();
   for(var i = 0;i<dataArray.length;i++)
   {
@@ -388,11 +422,9 @@ const DashBoard = (props) => {
             />
             <YAxis unit="V" domain={[graphRanges[0].min, graphRanges[0].max]} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+              contentStyle={toolTipStyle}
+              content={<CustomTooltip y = "V"></CustomTooltip>}
+              
             />
             <Legend />
             <Line
@@ -471,11 +503,8 @@ const DashBoard = (props) => {
               domain={[graphRanges[1].min, graphRanges[1].max]}
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+               contentStyle={toolTipStyle}
+               content={<CustomTooltip y = "mA"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -551,11 +580,8 @@ const DashBoard = (props) => {
             />
             <YAxis unit="W" domain={[graphRanges[2].min, graphRanges[2].max]} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+               contentStyle={toolTipStyle}
+               content={<CustomTooltip y = "W"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -631,11 +657,8 @@ const DashBoard = (props) => {
             <XAxis dataKey="name" unit="W" />
             <YAxis unit="V" domain={[graphRanges[3].min, graphRanges[3].max]} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+            contentStyle={toolTipStyle}
+            content={<PVToolTip></PVToolTip>}
             />
             <Legend />
             <Line
@@ -717,11 +740,8 @@ const DashBoard = (props) => {
             />
             <YAxis unit="%" domain={[graphRanges[4].min, graphRanges[4].max]} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+              contentStyle={toolTipStyle}
+              content={<CustomTooltip y = "%"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -799,11 +819,8 @@ const DashBoard = (props) => {
             />
             <YAxis unit="%" domain={[graphRanges[5].min, graphRanges[5].max]} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+               contentStyle={toolTipStyle}
+               content={<CustomTooltip y = "%"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -882,11 +899,8 @@ const DashBoard = (props) => {
             />
             <YAxis unit="%" domain={[graphRanges[6].min, graphRanges[6].max]} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(135, 99, 255,0.5)",
-                color: "#8763ff",
-                backdropFilter: "blur(10px)",
-              }}
+              contentStyle={toolTipStyle}
+              content={<CustomTooltip y = "%"></CustomTooltip>}
             />
             <Legend />
             <Line

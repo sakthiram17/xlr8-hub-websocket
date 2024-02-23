@@ -83,7 +83,7 @@ and (max-device-width : 768px)
   vertical-align: middle;
   margin-left: 20px;
   min-width: 3rem;
-  border-radius: 20%;
+  border-radius: 1rem;
   margin: 1rem;
 }
 

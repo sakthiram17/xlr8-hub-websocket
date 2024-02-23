@@ -46,8 +46,6 @@ const WebSocketClient = (props) => {
     }, [props.autofresh, data, props.duration]); // The empty dependency array ensures that this effect runs once after the initial render
 
   
-
-    console.log(props.resolution);
     return (
         <div>
             {/* Your component JSX here */}
