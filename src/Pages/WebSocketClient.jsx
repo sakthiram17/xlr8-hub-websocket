@@ -3,7 +3,7 @@ import { useDataContext } from '../dataContext.jsx';
 import { useControlContext,ControlProvider } from '../Pages/controlContext.jsx';
 
 const WebSocketClient = (props) => {
-    const [data, setData] = useState(null);
+
     const { dispatch } = useDataContext();
     const {controlParameters,controlUpdates} = useControlContext();
     let socket;
@@ -18,12 +18,11 @@ const WebSocketClient = (props) => {
 
             socket.addEventListener('message', (event) => {
               const temp = JSON.parse(event.data);
-              setData(prev=>{
-                if (controlParameters.autofresh) {
-                  dispatch({ type: 'APPEND', data:temp, duration: controlParameters.duration });
+         
+              if(controlParameters.autofresh)
+              {    
+                dispatch({ type: 'APPEND', data:temp, duration: controlParameters.duration });
               }
-              return prev
-              });
             
     
             });
@@ -45,7 +44,7 @@ const WebSocketClient = (props) => {
 
         // Initial connection attempt
         setUpConnection();
-    }, [controlParameters.autofresh, data, controlParameters.duration]); // The empty dependency array ensures that this effect runs once after the initial render
+    }, [controlParameters.autofresh,controlParameters.duration]); // The empty dependency array ensures that this effect runs once after the initial render
 
   
     return (

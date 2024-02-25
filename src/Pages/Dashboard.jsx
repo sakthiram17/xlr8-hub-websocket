@@ -325,6 +325,7 @@ const DashBoard = (props) => {
           valid={isValid}
           ind={0}
           handleChange={durationChangeHandler}
+          value = {controlParameters.duration}
         ></Input>
 
         <Input
@@ -334,6 +335,7 @@ const DashBoard = (props) => {
           valid={isValid2}
           ind={1}
           handleChange={handleSampleSizeChange}
+          value = {controlParameters.sampleSize}
         ></Input>
 
         <Button onClick={postResolution}>Set Resolution</Button>

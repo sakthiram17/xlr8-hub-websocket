@@ -12,8 +12,8 @@ const Input = (props) => {
           onChange={props.handleChange}
           index={props.ind}
           placeholder={props.placeholder}
-          value={props.value?props.value :null}
-          defaultValue={props.value}
+          value={props.value}
+ 
         ></input>
       </div>
     );

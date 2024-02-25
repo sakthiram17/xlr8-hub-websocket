@@ -31,9 +31,9 @@ const SideBar = (props)=>{
         
         <div className={classes}>
         <ul>
-        <li className ='close-icon' OnClick = {()=>{
+        <li className ='close-icon' onClick = {()=>{
             props.off();
-            console.log("Closing sidebar")
+
         }}>
             <FontAwesomeIcon icon = {faClose}></FontAwesomeIcon>
         </li>
