@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDataContext } from '../dataContext.jsx';
+import { useControlContext,ControlProvider } from '../Pages/controlContext.jsx';
 
 const WebSocketClient = (props) => {
     const [data, setData] = useState(null);
     const { dispatch } = useDataContext();
+    const {controlParameters,controlUpdates} = useControlContext();
     let socket;
 
     useEffect(() => {
@@ -17,8 +19,8 @@ const WebSocketClient = (props) => {
             socket.addEventListener('message', (event) => {
               const temp = JSON.parse(event.data);
               setData(prev=>{
-                if (props.autofresh) {
-                  dispatch({ type: 'APPEND', data:temp, duration: props.duration });
+                if (controlParameters.autofresh) {
+                  dispatch({ type: 'APPEND', data:temp, duration: controlParameters.duration });
               }
               return prev
               });
@@ -43,7 +45,7 @@ const WebSocketClient = (props) => {
 
         // Initial connection attempt
         setUpConnection();
-    }, [props.autofresh, data, props.duration]); // The empty dependency array ensures that this effect runs once after the initial render
+    }, [controlParameters.autofresh, data, controlParameters.duration]); // The empty dependency array ensures that this effect runs once after the initial render
 
   
     return (

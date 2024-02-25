@@ -20,8 +20,8 @@ const ControlPanel = () => {
   const [modalState, setModalState] = useState(null);
   const [spinner, setSpinner] = useState(null);
   const [currentParamters, setCurrentParameters] = useState({});
-  const [formData, setFormData] = useState([null, null, 0, 0, 0]);
-  const [isValid, setValidity] = useState([false, false, false, false, false]);
+  const [formData, setFormData] = useState([400, 150, 50, 8, 3]);
+  const [isValid, setValidity] = useState([true, true, true, true, true]);
 
   let voltage = dataPoints.length && dataPoints[dataPoints.length - 1].voltage;
   let current = dataPoints.length && dataPoints[dataPoints.length - 1].current;
@@ -173,6 +173,7 @@ const ControlPanel = () => {
               ind={4}
               label="Integral Constant"
               valid={true}
+              value = {formData[4]}
             ></Input>
           </React.Fragment>
         ) : null}
@@ -224,6 +225,7 @@ const ControlPanel = () => {
             Soft Stop
           </Button>
           <Button
+            disabled ={!(isValid[0] && isValid[1] &&isValid[2])}
             onClick={() => {
               turnOnSpinner();
               setTimeout(() => {

@@ -9,6 +9,8 @@ import  Backdrop  from "./UI/Backdrop.jsx"
 import SideBar from "./UI/SideBar.jsx"
 import Logs from './UI/Logs.jsx';
 import Guide from './Pages/Guide.jsx';
+import { useControlContext,ControlProvider } from './Pages/controlContext.jsx';
+import WebSocketClient from './Pages/WebSocketClient.jsx';
 function App() {
   const [sidebaron,setSidebaron] = useState(false);
   const [small,setSmall] = useState(false)
@@ -48,7 +50,9 @@ function App() {
 
   return (
     <div className="App">
+      <ControlProvider>
       <CounterProvider>
+      <WebSocketClient></WebSocketClient>
        <Navbar
        list = {["Dashboard","Control Panel","DataHub","Guide"]}
        off = {offSideBar}
@@ -78,6 +82,7 @@ function App() {
       on = {sidebaron}
       ></Backdrop>
       </CounterProvider>
+      </ControlProvider>
     </div>
   );
 }

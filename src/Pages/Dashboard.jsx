@@ -26,11 +26,12 @@ import Modal from "../UI/Modal.jsx";
 import WordAnimation from "./WordAnimation.jsx";
 import EquationParser from "./EquationsParser.jsx";
 import constants from "../Constants.jsx";
+import { useControlContext } from "./controlContext.jsx";
 
 const SERVER = constants.SERVER;
 const BASE_URL = constants.SERVER;
 const lineWidth = 2;
-const MAX_LENGTH = 750
+const MAX_LENGTH = 750;
 const brightColors = [
   "#FF6384", // Salmon Pink
   "#FFD700", // Gold
@@ -44,14 +45,13 @@ const toolTipStyle = {
   backgroundColor: "rgba(135, 99, 255,0.5)",
   color: "#8763ff",
   backdropFilter: "blur(4px)",
-  border:'none',
-  borderRadius : '1rem',
-  fontWeight : 'bold',
-  padding:'0.5rem',
-  paddingLeft:'1rem',
-  paddingRight : '1rem'
-
-}
+  border: "none",
+  borderRadius: "1rem",
+  fontWeight: "bold",
+  padding: "0.5rem",
+  paddingLeft: "1rem",
+  paddingRight: "1rem",
+};
 function formatTimeUnits(value) {
   if (value < 1000) {
     return value + "ms";
@@ -65,8 +65,12 @@ const CustomTooltip = (props) => {
   if (props.active && props.payload && props.payload.length) {
     return (
       <div className="custom-tooltip" style={toolTipStyle}>
-        <p>  {formatTimeUnits(parseFloat(props.label).toFixed(2))}</p>
-        <p> {parseFloat(props.payload[0].value).toFixed(2)}{props.y}</p>
+        <p> {formatTimeUnits(parseFloat(props.label).toFixed(2))}</p>
+        <p>
+          {" "}
+          {parseFloat(props.payload[0].value).toFixed(2)}
+          {props.y}
+        </p>
       </div>
     );
   }
@@ -78,7 +82,7 @@ const PVToolTip = (props) => {
   if (props.active && props.payload && props.payload.length) {
     return (
       <div className="custom-tooltip" style={toolTipStyle}>
-        <p>  {(parseFloat(props.label).toFixed(2))}W</p>
+        <p> {parseFloat(props.label).toFixed(2)}W</p>
         <p> {parseFloat(props.payload[0].value).toFixed(2)}V</p>
       </div>
     );
@@ -89,34 +93,31 @@ const PVToolTip = (props) => {
 
 function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
-  const stepSize = Math.ceil((dataArray.length / fixedSize));
-  let  avgVoltage = 0;
-  let  avgCurrent = 0;
-  let avgDutyRatio =0 ;
-  const  reducedArray = [];
+  const stepSize = Math.ceil(dataArray.length / fixedSize);
+  let avgVoltage = 0;
+  let avgCurrent = 0;
+  let avgDutyRatio = 0;
+  const reducedArray = [];
   const startTime = new Date(dataArray[0].current_time).getTime();
-  for(var i = 0;i<dataArray.length;i++)
-  {
-    if((i%stepSize==0))
-    {
-      let temp = {...dataArray[i]}
-      temp.time = new Date(dataArray[i].current_time).getTime()-startTime;
+  for (var i = 0; i < dataArray.length; i++) {
+    if (i % stepSize == 0) {
+      let temp = { ...dataArray[i] };
+      temp.time = new Date(dataArray[i].current_time).getTime() - startTime;
       temp.current = avgCurrent;
       temp.voltage = avgVoltage;
       temp.duty_ratio = avgDutyRatio;
-      avgCurrent = avgDutyRatio = avgVoltage=0;
+      avgCurrent = avgDutyRatio = avgVoltage = 0;
       reducedArray.push(temp);
-    }
-    else{
-      avgVoltage = avgVoltage + dataArray[i].voltage/stepSize;
-      avgCurrent = avgCurrent+ dataArray[i].current/stepSize;
-      avgDutyRatio = avgDutyRatio + dataArray[i].duty_ratio/stepSize;
+    } else {
+      avgVoltage = avgVoltage + dataArray[i].voltage / stepSize;
+      avgCurrent = avgCurrent + dataArray[i].current / stepSize;
+      avgDutyRatio = avgDutyRatio + dataArray[i].duty_ratio / stepSize;
     }
   }
 
   // Use reduce to average data points within each step
-  
-return reducedArray;
+
+  return reducedArray;
 }
 
 const initialGraphRanges = [
@@ -134,17 +135,17 @@ const DashBoard = (props) => {
   const [spinner, setSpinner] = useState(null);
   const { dataPoints, dispatch } = useDataContext();
   const [fileteredData, setFilteredData] = useState([]);
-  const [duration, setDuration] = useState(500);
-  const [autofresh, setAutoRefresh] = useState(false);
   const [isValid, setValidity] = useState(true);
   const [isValid2, setValidity2] = useState(true);
-  const [sampleSize, setSampleSize] = useState(200);
   const [graphHeights, setGraphHeights] = useState(initialGraphHeights);
   const [graphRanges, setGraphRanges] = useState(initialGraphRanges);
   const [modalState, setModalState] = useState(null);
   const [width, getWidth] = useState(window.innerWidth);
   const [is_small, setIsSmall] = useState(false);
-
+  const {controlParameters,controlUpdates} = useControlContext();
+  const duration = controlParameters.duration;
+  const sampleSize = controlParameters.sampleSize;
+  const autofresh = controlParameters.autofresh;
   useEffect(() => {
     window.addEventListener("resize", () => {
       getWidth(window.innerWidth);
@@ -156,9 +157,11 @@ const DashBoard = (props) => {
     });
   }, [width, getWidth]);
 
-
   const toggleButtonHandler = (event) => {
-    setAutoRefresh(event.target.checked);
+      let prev ={...controlParameters};
+      console.log(prev)
+      prev.autofresh = event.target.checked;
+      controlUpdates({type :'update',data:prev})
   };
   const disableKnobsHandler = (event) => {
     setIsSmall(event.target.checked);
@@ -222,7 +225,10 @@ const DashBoard = (props) => {
   const durationChangeHandler = (event) => {
     setValidity(event.target.value > 0);
     if (event.target.value > 0) {
-      setDuration(event.target.value);
+      let prev ={...controlParameters};
+      console.log(prev)
+      prev.duration = event.target.value;
+      controlUpdates({type :'update',data:prev})
     }
   };
 
@@ -238,7 +244,9 @@ const DashBoard = (props) => {
   };
 
   const handleSampleSizeChange = (event) => {
-    setSampleSize(event.target.value);
+      let prev ={...controlParameters};
+      prev.sampleSize = event.target.value;
+      controlUpdates({type :'update',data:prev})
     setValidity2(event.target.value >= 1);
   };
   const handleSliderChange = (index, value) => {
@@ -256,6 +264,8 @@ const DashBoard = (props) => {
       // //   return  new Date(ele.current_time).getTime() <= (new Date(dataPoints[dataPoints.length - 1].current_time).getTime() - duration*1000)
       // // })
       temp = dataPoints;
+      if(temp.length>=1)
+      {
       temp = temp.slice(temp.length - duration, temp.length);
       if (temp.length >= 1 && temp.length) {
         const startTime = new Date(temp[0].current_time).getTime();
@@ -267,19 +277,17 @@ const DashBoard = (props) => {
         temp[0].time = 0;
       }
       let averagedData;
-      if(duration>MAX_LENGTH)
-      {
-       averagedData =  [...reduceArrayToFixedSize(temp,MAX_LENGTH)];
-       return averagedData;
+      if (duration > MAX_LENGTH) {
+        averagedData = [...reduceArrayToFixedSize(temp, MAX_LENGTH)];
+        return averagedData;
       }
-
+    }
       return temp;
-    });
-
-   
     
+    }
+    
+    );
   }, [dataPoints, duration]);
-
 
   let chartData;
   if (fileteredData && fileteredData.length >= 1) {
@@ -296,11 +304,7 @@ const DashBoard = (props) => {
   return (
     <div className="Dashboard-Page">
       {spinner}
-      <WebSocketClient
-        duration={duration}
-        autofresh={autofresh}
-        resolution={sampleSize}
-      ></WebSocketClient>
+  
       <div
         style={{
           display: "flex",
@@ -311,7 +315,7 @@ const DashBoard = (props) => {
       >
         <ToggleButton
           label="AutoRefresh"
-          autofresh={autofresh}
+          autorefresh={autofresh}
           onChange={toggleButtonHandler}
         ></ToggleButton>
         <Input
@@ -335,19 +339,17 @@ const DashBoard = (props) => {
         <Button onClick={postResolution}>Set Resolution</Button>
         {modalState}
       </div>
-      <div  className="data-card">
-        <div className="generic-text-label">
-          Resolution : {sampleSize} ms
-        </div>
-        <div className="generic-text-label">
-          DataPoints : {duration}
-        </div>
-        {duration>750?<div className="generic-text-label">
-          Data Compression on
-          <br></br>
-          Ratio : {Math.ceil(duration/750)}
-        </div> :null}
-       </div>
+      <div className="data-card">
+        <div className="generic-text-label">Resolution : {sampleSize} ms</div>
+        <div className="generic-text-label">DataPoints : {duration}</div>
+        {duration > 750 ? (
+          <div className="generic-text-label">
+            Data Compression on
+            <br></br>
+            Ratio : {Math.ceil(duration / 750)}
+          </div>
+        ) : null}
+      </div>
 
       <div>
         <h1>Performance Parameters </h1>
@@ -423,8 +425,7 @@ const DashBoard = (props) => {
             <YAxis unit="V" domain={[graphRanges[0].min, graphRanges[0].max]} />
             <Tooltip
               contentStyle={toolTipStyle}
-              content={<CustomTooltip y = "V"></CustomTooltip>}
-              
+              content={<CustomTooltip y="V"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -503,8 +504,8 @@ const DashBoard = (props) => {
               domain={[graphRanges[1].min, graphRanges[1].max]}
             />
             <Tooltip
-               contentStyle={toolTipStyle}
-               content={<CustomTooltip y = "mA"></CustomTooltip>}
+              contentStyle={toolTipStyle}
+              content={<CustomTooltip y="mA"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -580,8 +581,8 @@ const DashBoard = (props) => {
             />
             <YAxis unit="W" domain={[graphRanges[2].min, graphRanges[2].max]} />
             <Tooltip
-               contentStyle={toolTipStyle}
-               content={<CustomTooltip y = "W"></CustomTooltip>}
+              contentStyle={toolTipStyle}
+              content={<CustomTooltip y="W"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -657,8 +658,8 @@ const DashBoard = (props) => {
             <XAxis dataKey="name" unit="W" />
             <YAxis unit="V" domain={[graphRanges[3].min, graphRanges[3].max]} />
             <Tooltip
-            contentStyle={toolTipStyle}
-            content={<PVToolTip></PVToolTip>}
+              contentStyle={toolTipStyle}
+              content={<PVToolTip></PVToolTip>}
             />
             <Legend />
             <Line
@@ -741,7 +742,7 @@ const DashBoard = (props) => {
             <YAxis unit="%" domain={[graphRanges[4].min, graphRanges[4].max]} />
             <Tooltip
               contentStyle={toolTipStyle}
-              content={<CustomTooltip y = "%"></CustomTooltip>}
+              content={<CustomTooltip y="%"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -819,8 +820,8 @@ const DashBoard = (props) => {
             />
             <YAxis unit="%" domain={[graphRanges[5].min, graphRanges[5].max]} />
             <Tooltip
-               contentStyle={toolTipStyle}
-               content={<CustomTooltip y = "%"></CustomTooltip>}
+              contentStyle={toolTipStyle}
+              content={<CustomTooltip y="%"></CustomTooltip>}
             />
             <Legend />
             <Line
@@ -900,7 +901,7 @@ const DashBoard = (props) => {
             <YAxis unit="%" domain={[graphRanges[6].min, graphRanges[6].max]} />
             <Tooltip
               contentStyle={toolTipStyle}
-              content={<CustomTooltip y = "%"></CustomTooltip>}
+              content={<CustomTooltip y="%"></CustomTooltip>}
             />
             <Legend />
             <Line

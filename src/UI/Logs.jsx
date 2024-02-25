@@ -7,6 +7,7 @@ import Button from "./Button.jsx";
 
 import ToggleButton from "../Pages/ToggleButton";
 import Input from "../Pages/Input.jsx";
+import { useControlContext } from "../Pages/controlContext.jsx";
 const TABLE_LENGTH = 20;
 const Logs = () => {
   const SECTION_SIZE = 8;
@@ -19,6 +20,7 @@ const Logs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSection, setCurrentSection] = useState(1);
   const [isValid, setValidity] = useState(true);
+  const { controlParameters, controlUpdates } = useControlContext();
   const switchHandler = (event) => {
     setJson(event.target.checked);
   };
@@ -183,7 +185,10 @@ const Logs = () => {
   pageCrumbs.push(
     <Button
       onClick={() => {
-        if (Math.floor(logs.length / TABLE_LENGTH) > (currentSection*SECTION_SIZE + 10)) {
+        if (
+          Math.floor(logs.length / TABLE_LENGTH) >
+          currentSection * SECTION_SIZE + 10
+        ) {
           setCurrentSection((prev) => {
             return prev + 10;
           });
@@ -216,6 +221,15 @@ const Logs = () => {
           label="Import Data"
           handleChange={handleFileChange}
         ></Input>
+        <ToggleButton
+          label="AutoRefresh"
+          autorefresh={controlParameters.autofresh}
+          onChange={(event) => {
+            let prev = { ...controlParameters };
+            prev.autofresh = event.target.checked;
+            controlUpdates({ type: "update", data: prev });
+          }}
+        ></ToggleButton>
         <p className="generic-text-label">Start Time</p>
         <input
           type="datetime-local"
@@ -280,32 +294,26 @@ const Logs = () => {
       </table>
       <ul className="page-crumbs">
         {pageCrumbs}
-        <Input type="number" label="Manually Select Page"
-        valid = {true}
-        handleChange = {(event)=>{
-          const pageNo = event.target.value;
-          
-          
-          if(pageNo<= (logs.length))
-          {
-            if(pageNo<SECTION_SIZE)
-            {
-              setCurrentPage(pageNo)
-              setCurrentSection(1)
+        <Input
+          type="number"
+          label="Manually Select Page"
+          valid={true}
+          handleChange={(event) => {
+            const pageNo = event.target.value;
+
+            if (pageNo <= logs.length) {
+              if (pageNo < SECTION_SIZE) {
+                setCurrentPage(pageNo);
+                setCurrentSection(1);
+              } else {
+                setCurrentPage(event.target.value);
+                setCurrentSection(Math.ceil(event.target.value / SECTION_SIZE));
+              }
             }
-            else{
-              setCurrentPage(event.target.value)
-            setCurrentSection(Math.ceil(event.target.value/SECTION_SIZE))
-            }
-          }
-
-         
-
-
-        }}
+          }}
         ></Input>
       </ul>
-      
+
       <div
         style={{
           display: "flex",
@@ -336,7 +344,6 @@ const Logs = () => {
         </Button>
         <Button onClick={handleExportClick}>Export PV Curve</Button>
       </div>
-      
     </div>
   );
 };

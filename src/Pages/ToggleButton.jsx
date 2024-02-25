@@ -5,7 +5,10 @@ const ToggleButton = (props)=>{
             {props.label}
         </span>
         <label className ="switch">
-        <input type="checkbox" className="checkbox" onChange={props.onChange} value = {props.autorefresh}/>
+        <input type="checkbox" className="checkbox" 
+        defaultChecked={props.autorefresh}
+        
+        onChange={props.onChange} value = {props.autorefresh}/>
         <span className ="slider round"></span>
         </label>
         </div>

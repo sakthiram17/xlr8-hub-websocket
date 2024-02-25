@@ -12,12 +12,12 @@
 .lds-dual-ring:after {
   content: ' ';
   display: block;
-  width: 46px;
-  height: 46px;
+  width: 100px;
+  height: 100px;
   margin: 1px;
   border-radius: 50%;
-  border: 5px solid #510077;
-  border-color: #510077 transparent #510077 transparent;
+  border: 5px solid var(--accent-color);
+  border-color:  var(--accent-color) transparent  var(--accent-color) transparent;
   animation: lds-dual-ring 1.2s linear infinite;
 }
 
@@ -27,7 +27,7 @@
   position: fixed;
   top: 0%;
   left: 0%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.3);
   z-index: 100;
  
 }
