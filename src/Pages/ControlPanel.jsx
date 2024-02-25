@@ -330,23 +330,22 @@ const ControlPanel = () => {
         </div>
       </div>
       <div className="widgets-2">
+      
         <Card
-          header="Current"
-          title="Current (0-500) mA"
-          parameter={(current ? parseFloat(current).toFixed(2) : 0) + "mA"}
-          danger={current >= 500}
-          message={"Current Exceding maximum Limits"}
+          header="Load Current"
+          title="Current "
+          danger={voltage >= 750}
+          message={"current exceeds maximum limit"}
         >
-          <RectangularBar
-            height="250px"
-            width="80px"
-            c1="#fca311"
-            c2="whitesmoke"
-            direction="top"
-            level={(current / 1000) * 100}
-            text="Completion"
-          ></RectangularBar>
+          <Guage
+            unit="mA"
+            bg = "gold"
+            max = "750"
+            value={current ? parseFloat(current).toFixed(2) : 0}
+          ></Guage>
         </Card>
+
+
         <Card
           header=" DC Bus Voltage "
           title="Voltage "
@@ -355,6 +354,7 @@ const ControlPanel = () => {
         >
           <Guage
             unit="V"
+            max = "450"
             value={voltage ? parseFloat(voltage).toFixed(2) : 0}
           ></Guage>
         </Card>
@@ -368,6 +368,7 @@ const ControlPanel = () => {
             unit="W"
             value={power ? power.toFixed(2) : null}
             type={true}
+            max = "225"
           ></Guage>
         </Card>
       </div>

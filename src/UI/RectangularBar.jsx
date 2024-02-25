@@ -12,10 +12,8 @@ const RectangularBar = (props)=>{
 
 
     return(
-    <div className='RectangularBar'>
-     <div className="RectangularBar" >
-     
-     </div>
+    <div className='RectangularBar' style = {fill_style}>
+
      </div>
     )
     
