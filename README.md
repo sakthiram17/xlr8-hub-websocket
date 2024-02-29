@@ -47,22 +47,86 @@ This web application provides a sophisticated control interface for a groundbrea
 - **ChatGPT Integration:** Leverage the ChatGPT API to create a guide page that responds to user queries, offering assistance and guidance related to the project.
 
 ## Getting Started
+### Cloning the Repository
 
-1. **Clone the Repository:** Begin by cloning this repository to your local machine.
+Begin by cloning the repository to your local machine using the following command:
 
-2. **Installing nodes js** : download and install the latest version of node                              js <br>
+```bash
+git clone [repository_url]
+```
 
-                                
+### Installing Node.js
 
-3. **install vite:** npm create vite@latest
+1. Download and install the latest version of Node.js from [nodejs.org](https://nodejs.org/).
 
-4. **Installing  dependencies** : open terminal and type npm install in the master folder as well as back-end folder to install all the necessary libraries for the server and web app
-5. **Set up DataBase** : set the URL for your server and Firebase in the Constants.jsx folder by default the server runs at PORT 5000 the URL is "http://localhost:5000/"" and if you want local access within your network you can set it as "http://server-ip-address :5000/"" (you can find that out by using ipconfing command). Make sure to change the URL in websocketclient.jsx file as well.
-6. **run the web application :** run the web application with the command npm run dev or npm run dev -- --host (for access within local network)
-7. **Configure server** : create a .env in the same folder as server and set up OPEN_API_KEY and BASE_URL {url to firebase database} . Adjust COM Ports or UART configuration if necessary
-8. **Start Server** : you can test the server with random data and without stm32 connected to the device using the command node app.js stand-alone . if you have stm connected then you using node app.js command.
-9. **Set up the STM32** : set up STM32 with suitable timer configurations to generate the desired PWM in STM32 Cube IDE and use the main.c in stm-code folder.
-10.  **Your Setup must be ready to go**
+### Installing Vite
+
+Run the following command to install Vite globally:
+
+```bash
+npm install -g create-vite
+```
+
+### Installing Dependencies
+
+Open the terminal and navigate to both the master folder and back-end folder. Run the following command to install all necessary libraries for the server and web app:
+
+```bash
+cd [path_to_master_folder]
+npm install
+
+cd [path_to_back-end_folder]
+npm install
+```
+
+### Set up Database
+
+1. Open `Constants.jsx` folder and set the URL for your server and Firebase. Default server URL is "http://localhost:5000/".
+2. For local network access, set it as "http://server-ip-address:5000/" (find the IP address using `ipconfig` command).
+3. Change the URL in `websocketclient.jsx` file as well.
+
+### Run the Web Application
+
+Run the web application with the following command:
+
+```bash
+cd [path_to_master_folder]
+npm run dev
+```
+
+For local network access:
+
+```bash
+npm run dev -- --host
+```
+
+### Configure Server
+
+1. Create a `.env` file in the server folder.
+2. Set up `OPEN_API_KEY` and `BASE_URL` (URL to Firebase database).
+3. Adjust COM Ports or UART configuration if necessary.
+
+### Start Server
+
+Test the server with random data and without STM32 connected using:
+
+```bash
+cd [path_to_back-end_folder]
+node app.js stand-alone
+```
+
+If STM32 is connected:
+
+```bash
+node app.js
+```
+
+### Set up STM32
+
+1. Set up STM32 with suitable timer configurations to generate the desired PWM in STM32 Cube IDE.
+2. Use the `main.c` file in the `stm-code` folder. Convert it to markdown with proper styling.
+
+This guide assumes basic knowledge of Git, Node.js, and STM32 Cube IDE. Make sure to replace placeholders like `[repository_url]`, `[path_to_master_folder]`, and `[path_to_back-end_folder]` with your actual values.
 
 ## Usage
 
