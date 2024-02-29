@@ -47,12 +47,14 @@ This web application provides a sophisticated control interface for a groundbrea
 - **ChatGPT Integration:** Leverage the ChatGPT API to create a guide page that responds to user queries, offering assistance and guidance related to the project.
 
 ## Getting Started
+Certainly! Based on the provided GitHub repository, here's an updated set of instructions:
+
 ### Cloning the Repository
 
 Begin by cloning the repository to your local machine using the following command:
 
 ```bash
-git clone [repository_url]
+git clone https://github.com/sakthiram17/xlr8-hub-websocket.git
 ```
 
 ### Installing Node.js
@@ -69,19 +71,19 @@ npm install -g create-vite
 
 ### Installing Dependencies
 
-Open the terminal and navigate to both the master folder and back-end folder. Run the following command to install all necessary libraries for the server and web app:
+Open the terminal and navigate to both the `master-folder` and `back-end` folders. Run the following command to install all necessary libraries for the server and web app:
 
 ```bash
-cd [path_to_master_folder]
+cd master-folder
 npm install
 
-cd [path_to_back-end_folder]
+cd back-end
 npm install
 ```
 
 ### Set up Database
 
-1. Open `Constants.jsx` folder and set the URL for your server and Firebase. Default server URL is "http://localhost:5000/".
+1. Open `Constants.jsx` folder in `master-folder` and set the URL for your server and Firebase. Default server URL is "http://localhost:5000/".
 2. For local network access, set it as "http://server-ip-address:5000/" (find the IP address using `ipconfig` command).
 3. Change the URL in `websocketclient.jsx` file as well.
 
@@ -90,7 +92,7 @@ npm install
 Run the web application with the following command:
 
 ```bash
-cd [path_to_master_folder]
+cd master-folder
 npm run dev
 ```
 
@@ -102,7 +104,7 @@ npm run dev -- --host
 
 ### Configure Server
 
-1. Create a `.env` file in the server folder.
+1. Create a `.env` file in the `back-end` folder.
 2. Set up `OPEN_API_KEY` and `BASE_URL` (URL to Firebase database).
 3. Adjust COM Ports or UART configuration if necessary.
 
@@ -111,7 +113,7 @@ npm run dev -- --host
 Test the server with random data and without STM32 connected using:
 
 ```bash
-cd [path_to_back-end_folder]
+cd back-end
 node app.js stand-alone
 ```
 
@@ -123,10 +125,10 @@ node app.js
 
 ### Set up STM32
 
-1. Set up STM32 with suitable timer configurations to generate the desired PWM in STM32 Cube IDE.
-2. Use the `main.c` file in the `stm-code` folder. Convert it to markdown with proper styling.
+1. Set up STM32 with suitable timer and UART configurations to generate the desired PWM in STM32 Cube IDE.
+2. Use the `main.c` file in the `stm-code` folder.
 
-This guide assumes basic knowledge of Git, Node.js, and STM32 Cube IDE. Make sure to replace placeholders like `[repository_url]`, `[path_to_master_folder]`, and `[path_to_back-end_folder]` with your actual values.
+
 
 ## Usage
 
