@@ -31,6 +31,9 @@ const actionHandler = (state,action)=>{
           {
             temp = temp.slice(temp.length-2000,temp.length)
           }
+          temp.sort((a,b)=>{
+            return new Date(a.current_time).getTime()- new Date(b.current_time).getTime()
+           })
           
           return temp;
           
