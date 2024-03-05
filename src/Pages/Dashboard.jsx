@@ -1,30 +1,15 @@
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Brush,
-} from "recharts";
+
 import { useState, useReducer, useEffect } from "react";
-import { createContext, useContext } from "react";
+
 import axios from "axios";
 import React from "react";
 import "./Elements.css";
 import ToggleButton from "./ToggleButton.jsx";
 import Input from "./Input.jsx";
-import Card from "../UI/Card.jsx";
 import Button from "../UI/Button.jsx";
 import { useDataContext } from "../dataContext.jsx";
-import WebSocketClient from "./WebSocketClient.jsx";
 import LoadingSpinner from "../UI/LoadingSpinner.jsx";
-import dp from "../UI/dp.jpg";
 import Modal from "../UI/Modal.jsx";
-import WordAnimation from "./WordAnimation.jsx";
-import EquationParser from "./EquationsParser.jsx";
 import constants from "../Constants.jsx";
 import { useControlContext } from "./controlContext.jsx";
 import GraphContainer from "./GraphContainer.jsx";
@@ -41,7 +26,17 @@ const brightColors = [
   "#FFA500", // Orange
   "#1E90FF",
 ];
-function reduceArrayToFixedSize(dataArray, fixedSize) {
+
+
+const initialGraphRanges = [
+  { min: 0, max: 600 },
+  { min: 0, max: 1000 },
+  { min: 0, max: 300 },
+  { min: 0, max: 600 },
+  { min: 0, max: 100 },
+  { min: 0, max: 100 },
+  { min: 0, max: 100 },
+];function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
   const stepSize = Math.ceil(dataArray.length / fixedSize);
   let avgVoltage = 0;
@@ -70,16 +65,6 @@ function reduceArrayToFixedSize(dataArray, fixedSize) {
   return reducedArray;
 }
 
-const initialGraphRanges = [
-  { min: 0, max: 600 },
-  { min: 0, max: 1000 },
-  { min: 0, max: 300 },
-  { min: 0, max: 600 },
-  { min: 0, max: 100 },
-  { min: 0, max: 100 },
-  { min: 0, max: 100 },
-];
-
 const initialGraphHeights = [400, 400, 400, 400, 400, 400, 400];
 const DashBoard = (props) => {
   const [spinner, setSpinner] = useState(null);
@@ -107,11 +92,8 @@ const DashBoard = (props) => {
     });
   }, [width, getWidth]);
 
-  const toggleButtonHandler = (event) => {
-    let prev = { ...controlParameters };
-    console.log(prev);
-    prev.autofresh = event.target.checked;
-    controlUpdates({ type: "update", data: prev });
+  const toggleButtonHandler = (isChecked) => {
+    controlUpdates({ type: 'update', data: { ...controlParameters, autofresh: isChecked } });
   };
   const disableKnobsHandler = (event) => {
     setIsSmall(event.target.checked);

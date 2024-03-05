@@ -1,30 +1,28 @@
 
 import React, { createContext, useReducer, useContext } from 'react';
-const actionHandler = (state,action)=>{
-    if(action.type=='update')
-    {
-        return {...action.data}
-    }
-    else{
-        return {...state};
-    }
-
-}
+const actionHandler = (state, action) => {
+  if (action.type === 'update') {
+    return { ...state, ...action.data };
+  } else {
+    return { ...state };
+  }
+};
 
 const ControlContext = createContext();
-const ControlProvider= ({ children }) => {
-    const [controlParameters, controlUpdates] = useReducer(actionHandler, {
-        autofresh:false,
-        sampleSize:200,
-        duration:500
-    });
-  
-    return (
-      <ControlContext.Provider value={{ controlParameters, controlUpdates }}>
-        {children}
-      </ControlContext.Provider>
-    );
-  };
+
+const ControlProvider = React.memo(({ children }) => {
+  const [controlParameters, controlUpdates] = useReducer(actionHandler, {
+    autofresh: false,
+    sampleSize: 200,
+    duration: 500,
+  });
+
+  return (
+    <ControlContext.Provider value={{ controlParameters, controlUpdates }}>
+      {children}
+    </ControlContext.Provider>
+  );
+});
   
   const useControlContext = () => {
     const context = useContext(ControlContext);

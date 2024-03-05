@@ -11,11 +11,15 @@ import Logs from './UI/Logs.jsx';
 import Guide from './Pages/Guide.jsx';
 import { useControlContext,ControlProvider } from './Pages/controlContext.jsx';
 import WebSocketClient from './Pages/WebSocketClient.jsx';
+import ToggleButton from "./Pages/ToggleButton.jsx"
+
+
 function App() {
   const [sidebaron,setSidebaron] = useState(false);
   const [small,setSmall] = useState(false)
   const [currentPage,setPage] = useState(<DashBoard small = {small}></DashBoard>)
   const [activePage,setActivePage] = useState('Dashboard')
+  const [autofresh,setAutoRefresh] = useState(false);
   
   const offSideBar = ()=>{
     setSidebaron(false)
@@ -26,7 +30,11 @@ function App() {
   const updateIsSmall = (flag)=>{
     setSmall(flag)
   }
-
+  const toggleButtonHandler = (event)=>
+  {
+    setAutoRefresh(event.target.checked)
+    console.log(autofresh)
+  }
 
   const pageSwitchHandler = (event)=>{
     let page = event.target.innerHTML;
@@ -53,6 +61,7 @@ function App() {
       
       <ControlProvider>
       <CounterProvider>
+     
       <WebSocketClient></WebSocketClient>
        <Navbar
        list = {["Dashboard","Control Panel","DataHub","Guide"]}
@@ -75,6 +84,7 @@ function App() {
        active = {activePage}
        changePage = {pageSwitchHandler}
        ></SideBar>    
+    
 
 
       {currentPage}

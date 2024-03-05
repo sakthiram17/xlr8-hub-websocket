@@ -221,15 +221,7 @@ const Logs = () => {
           label="Import Data"
           handleChange={handleFileChange}
         ></Input>
-        <ToggleButton
-          label="AutoRefresh"
-          autorefresh={controlParameters.autofresh}
-          onChange={(event) => {
-            let prev = { ...controlParameters };
-            prev.autofresh = event.target.checked;
-            controlUpdates({ type: "update", data: prev });
-          }}
-        ></ToggleButton>
+       
         <p className="generic-text-label">Start Time</p>
         <input
           type="datetime-local"

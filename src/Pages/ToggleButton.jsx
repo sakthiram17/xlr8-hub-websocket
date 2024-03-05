@@ -1,4 +1,10 @@
 const ToggleButton = (props)=>{
+    const handleChange = (event) => {
+        if (props.onChange) {
+          props.onChange(event.target.checked);
+        }
+      };
+
     return(
         <div className="checkbox-wrapper-22">
         <span className="checkbox-label">
@@ -6,8 +12,10 @@ const ToggleButton = (props)=>{
         </span>
         <label className ="switch">
         <input type="checkbox" className="checkbox" 
-    
-        onChange={props.onChange} checked = {props.autorefresh}/>
+        onChange={handleChange} 
+        value = {props.autorefresh}/>
+
+        
         <span className ="slider round"></span>
         </label>
         </div>
