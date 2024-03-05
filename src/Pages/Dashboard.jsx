@@ -27,11 +27,11 @@ import WordAnimation from "./WordAnimation.jsx";
 import EquationParser from "./EquationsParser.jsx";
 import constants from "../Constants.jsx";
 import { useControlContext } from "./controlContext.jsx";
+import GraphContainer from "./GraphContainer.jsx";
 
 const SERVER = constants.SERVER;
 const BASE_URL = constants.SERVER;
-const lineWidth = 2;
-const MAX_LENGTH = 750;
+const MAX_LENGTH = 1000;
 const brightColors = [
   "#FF6384", // Salmon Pink
   "#FFD700", // Gold
@@ -41,56 +41,6 @@ const brightColors = [
   "#FFA500", // Orange
   "#1E90FF",
 ];
-const toolTipStyle = {
-  backgroundColor: "rgba(135, 99, 255,0.5)",
-  color: "#8763ff",
-  backdropFilter: "blur(4px)",
-  border: "none",
-  borderRadius: "1rem",
-  fontWeight: "bold",
-  padding: "0.5rem",
-  paddingLeft: "1rem",
-  paddingRight: "1rem",
-};
-function formatTimeUnits(value) {
-  if (value < 1000) {
-    return value + "ms";
-  } else if (value < 60000) {
-    return (value / 1000).toFixed(2) + "s";
-  } else {
-    return (value / 60000).toFixed(2) + "min";
-  }
-}
-const CustomTooltip = (props) => {
-  if (props.active && props.payload && props.payload.length) {
-    return (
-      <div className="custom-tooltip" style={toolTipStyle}>
-        <p> {formatTimeUnits(parseFloat(props.label).toFixed(2))}</p>
-        <p>
-          {" "}
-          {parseFloat(props.payload[0].value).toFixed(2)}
-          {props.y}
-        </p>
-      </div>
-    );
-  }
-
-  return null;
-};
-
-const PVToolTip = (props) => {
-  if (props.active && props.payload && props.payload.length) {
-    return (
-      <div className="custom-tooltip" style={toolTipStyle}>
-        <p> {parseFloat(props.label).toFixed(2)}W</p>
-        <p> {parseFloat(props.payload[0].value).toFixed(2)}V</p>
-      </div>
-    );
-  }
-
-  return null;
-};
-
 function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
   const stepSize = Math.ceil(dataArray.length / fixedSize);
@@ -142,7 +92,7 @@ const DashBoard = (props) => {
   const [modalState, setModalState] = useState(null);
   const [width, getWidth] = useState(window.innerWidth);
   const [is_small, setIsSmall] = useState(false);
-  const {controlParameters,controlUpdates} = useControlContext();
+  const { controlParameters, controlUpdates } = useControlContext();
   const duration = controlParameters.duration;
   const sampleSize = controlParameters.sampleSize;
   const autofresh = controlParameters.autofresh;
@@ -158,10 +108,10 @@ const DashBoard = (props) => {
   }, [width, getWidth]);
 
   const toggleButtonHandler = (event) => {
-      let prev ={...controlParameters};
-      console.log(prev)
-      prev.autofresh = event.target.checked;
-      controlUpdates({type :'update',data:prev})
+    let prev = { ...controlParameters };
+    console.log(prev);
+    prev.autofresh = event.target.checked;
+    controlUpdates({ type: "update", data: prev });
   };
   const disableKnobsHandler = (event) => {
     setIsSmall(event.target.checked);
@@ -225,10 +175,10 @@ const DashBoard = (props) => {
   const durationChangeHandler = (event) => {
     setValidity(event.target.value > 0);
     if (event.target.value > 0) {
-      let prev ={...controlParameters};
-      console.log(prev)
+      let prev = { ...controlParameters };
+      console.log(prev);
       prev.duration = event.target.value;
-      controlUpdates({type :'update',data:prev})
+      controlUpdates({ type: "update", data: prev });
     }
   };
 
@@ -244,9 +194,9 @@ const DashBoard = (props) => {
   };
 
   const handleSampleSizeChange = (event) => {
-      let prev ={...controlParameters};
-      prev.sampleSize = event.target.value;
-      controlUpdates({type :'update',data:prev})
+    let prev = { ...controlParameters };
+    prev.sampleSize = event.target.value;
+    controlUpdates({ type: "update", data: prev });
     setValidity2(event.target.value >= 1);
   };
   const handleSliderChange = (index, value) => {
@@ -264,29 +214,25 @@ const DashBoard = (props) => {
       // //   return  new Date(ele.current_time).getTime() <= (new Date(dataPoints[dataPoints.length - 1].current_time).getTime() - duration*1000)
       // // })
       temp = dataPoints;
-      if(temp.length>=1)
-      {
-      temp = temp.slice(temp.length - duration, temp.length);
-      if (temp.length >= 1 && temp.length) {
-        const startTime = new Date(temp[0].current_time).getTime();
+      if (temp.length >= 1) {
+        temp = temp.slice(temp.length - duration, temp.length);
+        if (temp.length >= 1 && temp.length) {
+          const startTime = new Date(temp[0].current_time).getTime();
 
-        for (let i = 0; i < temp.length; i++) {
-          const currentTime = new Date(temp[i].current_time).getTime();
-          temp[i].time = currentTime - startTime;
+          for (let i = 0; i < temp.length; i++) {
+            const currentTime = new Date(temp[i].current_time).getTime();
+            temp[i].time = currentTime - startTime;
+          }
+          temp[0].time = 0;
         }
-        temp[0].time = 0;
+        let averagedData;
+        if (duration > MAX_LENGTH) {
+          averagedData = [...reduceArrayToFixedSize(temp, MAX_LENGTH)];
+          return averagedData;
+        }
       }
-      let averagedData;
-      if (duration > MAX_LENGTH) {
-        averagedData = [...reduceArrayToFixedSize(temp, MAX_LENGTH)];
-        return averagedData;
-      }
-    }
       return temp;
-    
-    }
-    
-    );
+    });
   }, [dataPoints, duration]);
 
   let chartData;
@@ -304,7 +250,7 @@ const DashBoard = (props) => {
   return (
     <div className="Dashboard-Page">
       {spinner}
-  
+
       <div
         style={{
           display: "flex",
@@ -325,7 +271,7 @@ const DashBoard = (props) => {
           valid={isValid}
           ind={0}
           handleChange={durationChangeHandler}
-          value = {controlParameters.duration}
+          value={controlParameters.duration}
         ></Input>
 
         <Input
@@ -335,7 +281,7 @@ const DashBoard = (props) => {
           valid={isValid2}
           ind={1}
           handleChange={handleSampleSizeChange}
-          value = {controlParameters.sampleSize}
+          value={controlParameters.sampleSize}
         ></Input>
 
         <Button onClick={postResolution}>Set Resolution</Button>
@@ -356,568 +302,149 @@ const DashBoard = (props) => {
       <div>
         <h1>Performance Parameters </h1>
       </div>
-      <div>
-        <h2>Voltage </h2>
-      </div>
+
       <div></div>
       <ToggleButton
         label="Disable Knobs"
         autofresh={is_small}
         onChange={disableKnobsHandler}
       ></ToggleButton>
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphHeights[0]}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleSliderChange(0, parseInt(event.target.value * 8));
-          }}
-        ></Input>
-        <Input
-          label="min"
-          place="min"
-          valid={true}
-          ind={0}
-          small={is_small}
-          value={graphRanges[0].min}
-          type="slider"
-          handleChange={(event) => {
-            handleZoomChange(0, parseInt(event.target.value * 6), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          small={is_small}
-          valid={true}
-          ind={0}
-          value={graphRanges[0].max}
-          type="slider"
-          handleChange={(event) => {
-            handleZoomChange(0, parseInt(event.target.value * 6), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[0]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData.map((ele) => {
-              return {
-                name: ele.time,
-                voltage: ele.voltage,
-              };
-            })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            {" "}
-            <Brush></Brush>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickFormatter={(tick) => {
-                return formatTimeUnits(tick);
-              }}
-            />
-            <YAxis unit="V" domain={[graphRanges[0].min, graphRanges[0].max]} />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<CustomTooltip y="V"></CustomTooltip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="voltage"
-              stroke={brightColors[0]}
-              strokeWidth={lineWidth}
-              activeDot={{ r: 8 }}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      <div>
-        <h2>Current </h2>
-      </div>
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphHeights[0]}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleSliderChange(1, parseInt(event.target.value * 8));
-          }}
-        ></Input>
-        <Input
-          small={is_small}
-          label="min"
-          place="min"
-          valid={true}
-          ind={0}
-          value={graphRanges[1].min}
-          type="slider"
-          handleChange={(event) => {
-            handleZoomChange(1, parseInt(event.target.value * 10), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphRanges[1].max}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(1, parseInt(event.target.value * 10), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[1]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData.map((ele) => {
-              return {
-                name: ele.time,
-                current: ele.current,
-              };
-            })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickFormatter={(tick) => {
-                return formatTimeUnits(tick);
-              }}
-            />
-            <YAxis
-              unit="mA"
-              domain={[graphRanges[1].min, graphRanges[1].max]}
-            />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<CustomTooltip y="mA"></CustomTooltip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="current"
-              stroke={brightColors[1]}
-              strokeWidth={lineWidth}
-              activeDot={{ r: 8 }}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      <div>
-        <h2>Power</h2>
-      </div>
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphHeights[2]}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleSliderChange(2, parseInt(event.target.value * 8));
-          }}
-        ></Input>
-        <Input
-          label="min"
-          place="min"
-          valid={true}
-          ind={0}
-          small={is_small}
-          value={graphRanges[2].min}
-          type="slider"
-          handleChange={(event) => {
-            handleZoomChange(2, parseInt(event.target.value * 3), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphRanges[2].max}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(2, parseInt(event.target.value * 3), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[2]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData.map((ele) => {
-              return {
-                name: ele.time,
-                power: (ele.current * ele.voltage) / 1000,
-              };
-            })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickFormatter={(tick) => {
-                return formatTimeUnits(tick);
-              }}
-            />
-            <YAxis unit="W" domain={[graphRanges[2].min, graphRanges[2].max]} />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<CustomTooltip y="W"></CustomTooltip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="power"
-              stroke={brightColors[2]}
-              strokeWidth={lineWidth}
-              activeDot={{ r: 8 }}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      <div>
-        <h2>Power-Voltage Curve</h2>
-      </div>
-
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          small={is_small}
-          valid={true}
-          ind={0}
-          value={graphHeights[3]}
-          type="slider"
-          handleChange={(event) => {
-            handleSliderChange(3, parseInt(event.target.value * 8));
-          }}
-        ></Input>
-        <Input
-          label="min"
-          place="min"
-          valid={true}
-          ind={0}
-          small={is_small}
-          value={graphRanges[3].min}
-          type="slider"
-          handleChange={(event) => {
-            handleZoomChange(3, parseInt(event.target.value * 6), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphRanges[3].max}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(3, parseInt(event.target.value * 6), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[3]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData
-              .map((ele) => {
-                return {
-                  voltage: ele.voltage,
-                  name: ((ele.current * ele.voltage) / 1000).toFixed(2),
-                };
-              })
-              .sort((a, b) => {
-                return a.name - b.name;
-              })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" unit="W" />
-            <YAxis unit="V" domain={[graphRanges[3].min, graphRanges[3].max]} />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<PVToolTip></PVToolTip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="voltage"
-              stroke={brightColors[3]}
-              strokeWidth={lineWidth}
-              activeDot={{ r: 8 }}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            voltage: ele.voltage,
+          };
+        })}
+        color="red"
+        graphHeight={graphHeights[0]}
+        graphRange={graphRanges[0]}
+        Color={brightColors[0]}
+        yLabel={"Voltage"}
+        unit="V"
+        index={0}
+        dataKey={"voltage"}
+      ></GraphContainer>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            current: ele.current,
+          };
+        })}
+        graphHeight={graphHeights[1]}
+        graphRange={graphRanges[1]}
+        Color={brightColors[1]}
+        yLabel={"Load Current"}
+        unit="mA"
+        index={1}
+        dataKey={"current"}
+      ></GraphContainer>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            power: (ele.current * ele.voltage) / 1000,
+          };
+        })}
+        graphHeight={graphHeights[2]}
+        graphRange={graphRanges[2]}
+        Color={brightColors[2]}
+        yLabel={"Power"}
+        unit="W"
+        index={2}
+        dataKey={"power"}
+      ></GraphContainer>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData
+          .map((ele) => {
+            return {
+              voltage: ele.voltage,
+              name: ((ele.current * ele.voltage) / 1000).toFixed(2),
+            };
+          })
+          .sort((a, b) => {
+            return a.name - b.name;
+          })}
+        graphHeight={graphHeights[3]}
+        graphRange={graphRanges[3]}
+        Color={brightColors[3]}
+        yLabel={"Power - Voltage Curve"}
+        unit="W"
+        type="PV"
+        dataKey={"voltage"}
+        index={3}
+      ></GraphContainer>
 
       <div>
         <h1>Gating Pulses</h1>
       </div>
-      <div>
-        <h2>
-          Switch S<sub>1</sub>
-        </h2>
-      </div>
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphHeights[4]}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleSliderChange(4, parseInt(event.target.value) * 8);
-          }}
-        ></Input>
-        <Input
-          label="min"
-          place="min"
-          valid={true}
-          ind={0}
-          value={graphRanges[4].min}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(4, parseInt(event.target.value), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphRanges[4].max}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(4, parseInt(event.target.value), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[4]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData.map((ele) => {
-              return {
-                name: ele.time,
-                duty_ratio: (ele.duty_ratio * 100).toFixed(2),
-              };
-            })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickFormatter={(tick) => {
-                return formatTimeUnits(tick);
-              }}
-            />
-            <YAxis unit="%" domain={[graphRanges[4].min, graphRanges[4].max]} />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<CustomTooltip y="%"></CustomTooltip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="duty_ratio"
-              stroke={brightColors[4]}
-              strokeWidth={lineWidth}
-              activeDot={{ r: 8 }}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      <div>
-        <h2>
-          Switch S<sub>2</sub>
-        </h2>
-      </div>
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          valid={true}
-          small={is_small}
-          ind={0}
-          value={graphHeights[5]}
-          type="slider"
-          handleChange={(event) => {
-            handleSliderChange(5, parseInt(event.target.value) * 8);
-          }}
-        ></Input>
-        <Input
-          label="min"
-          place="min"
-          valid={true}
-          small={is_small}
-          ind={0}
-          value={graphRanges[5].min}
-          type="slider"
-          handleChange={(event) => {
-            handleZoomChange(5, parseInt(event.target.value), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphRanges[5].max}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(5, parseInt(event.target.value), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[5]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData.map((ele) => {
-              return {
-                name: ele.time,
-                duty_ratio: (ele.duty_ratio * 100).toFixed(2),
-              };
-            })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickFormatter={(tick) => {
-                return formatTimeUnits(tick);
-              }}
-            />
-            <YAxis unit="%" domain={[graphRanges[5].min, graphRanges[5].max]} />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<CustomTooltip y="%"></CustomTooltip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="duty_ratio"
-              stroke={brightColors[5]}
-              strokeWidth={lineWidth}
-              dot={false}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-          <Brush></Brush>
-        </ResponsiveContainer>
-      </div>
-      <div>
-        <h2>
-          Switch S<sub>3</sub>
-        </h2>
-      </div>
-      <div className="graph-container">
-        <Input
-          label="Zoom"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphHeights[6]}
-          small={is_small}
-          type="slider"
-          handleChange={(event) => {
-            handleSliderChange(6, parseInt(event.target.value) * 8);
-          }}
-        ></Input>
-        <Input
-          label="min"
-          place="min"
-          valid={true}
-          ind={0}
-          value={graphRanges[6].min}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(6, parseInt(event.target.value), "min");
-          }}
-        ></Input>
-        <Input
-          label="max"
-          place="asdf"
-          valid={true}
-          ind={0}
-          value={graphRanges[6].max}
-          type="slider"
-          small={is_small}
-          handleChange={(event) => {
-            handleZoomChange(6, parseInt(event.target.value), "max");
-          }}
-        ></Input>
-        <ResponsiveContainer width="90%" height={graphHeights[6]}>
-          <LineChart
-            width={1000}
-            height={300}
-            syncId="anyid"
-            data={fileteredData.map((ele) => {
-              return {
-                name: ele.time,
-                duty_ratio: (ele.duty_ratio * 100).toFixed(2),
-              };
-            })}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickFormatter={(tick) => {
-                return formatTimeUnits(tick);
-              }}
-            />
-            <YAxis unit="%" domain={[graphRanges[6].min, graphRanges[6].max]} />
-            <Tooltip
-              contentStyle={toolTipStyle}
-              content={<CustomTooltip y="%"></CustomTooltip>}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="duty_ratio"
-              stroke={brightColors[6]}
-              strokeWidth={lineWidth}
-              activeDot={{ r: 8 }}
-              dot={false}
-            />
-          </LineChart>
-          <Brush></Brush>
-        </ResponsiveContainer>
-      </div>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            duty: ele.duty_ratio,
+          };
+        })}
+        graphHeight={graphHeights[4]}
+        graphRange={graphRanges[4]}
+        Color={brightColors[4]}
+        yLabel={"Switch S\u2081"}
+        unit="%"
+        index={4}
+        dataKey={"duty"}
+      ></GraphContainer>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            duty: ele.duty_ratio,
+          };
+        })}
+        graphHeight={graphHeights[5]}
+        graphRange={graphRanges[5]}
+        Color={brightColors[5]}
+        yLabel={"Switch S\u2082"}
+        unit="%"
+        dataKey={"duty"}
+        index={5}
+      ></GraphContainer>
+      <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            duty: ele.duty_ratio,
+          };
+        })}
+        graphHeight={graphHeights[6]}
+        graphRange={graphRanges[6]}
+        Color={brightColors[6]}
+        yLabel={"Switch S\u2083"}
+        unit="%"
+        index={6}
+        dataKey={"duty"}
+      ></GraphContainer>
     </div>
   );
 };
