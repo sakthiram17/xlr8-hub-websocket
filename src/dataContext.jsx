@@ -34,7 +34,21 @@ const actionHandler = (state,action)=>{
           temp.sort((a,b)=>{
             return new Date(a.current_time).getTime()- new Date(b.current_time).getTime()
            })
-          
+           break;
+          case 'ZERO-FILTER': temp = [...state];
+          temp;
+            let startIndex = 0;
+            let endIndex = temp.length - 1;
+        
+            while (startIndex <= endIndex && temp[startIndex].voltage* temp[startIndex].current/1000 === 0) {
+              startIndex++;
+            }
+        
+            while (endIndex >= startIndex && temp[startIndex].voltage* temp[startIndex].current/1000 === 0) {
+              endIndex--;
+            }
+
+          temp= temp.slice(startIndex, endIndex + 1);      
           return temp;
           
 

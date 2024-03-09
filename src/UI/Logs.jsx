@@ -4,7 +4,7 @@ import Log from "./Log";
 import "./Logs.css";
 import * as XLSX from "xlsx";
 import Button from "./Button.jsx";
-
+import Modal from "./Modal.jsx";
 import ToggleButton from "../Pages/ToggleButton";
 import Input from "../Pages/Input.jsx";
 import { useControlContext } from "../Pages/controlContext.jsx";
@@ -20,10 +20,16 @@ const Logs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSection, setCurrentSection] = useState(1);
   const [isValid, setValidity] = useState(true);
+  const [filterZeros,setFilterZeros] = useState(false)
   const { controlParameters, controlUpdates } = useControlContext();
+  const [errorModal,setErrorModal] = useState(null)
   const switchHandler = (event) => {
     setJson(event.target.checked);
   };
+
+  const filterZerosHandler = (event)=>{
+    setFilterZeros(event.target.checked);
+  }
   const dataPointsSwitchHandler = (event) => {
     setOutliersOnly(event.target.checked);
   };
@@ -34,7 +40,18 @@ const Logs = () => {
     setEndDate(new Date(event.target.value));
   };
   const dataFilter = () => {
-    dispatch({ type: "FILTER", startDate: startDate, endDate: endDate });
+    if(startDate && endDate)
+    {
+      dispatch({ type: "FILTER", startDate: startDate, endDate: endDate });
+    if(filterZeros)
+    {
+      dispatch({type :'ZERO-FILTER'})
+    }
+    }
+    setErrorModal(<Modal code = 'error'> Please Select Valid Start and End Time</Modal>)
+    setTimeout(()=>{
+      setErrorModal(null)
+    },1000)
   };
   let logs = dataPoints.filter((ele) => {
     let outlier = false;
@@ -234,6 +251,12 @@ const Logs = () => {
           onChange={handleEndDateChange}
           style={{ margin: "1rem" }}
         ></input>
+        <ToggleButton
+        label = "Filter Zeros at End"
+        autorefresh = {filterZeros}
+        onChange = {filterZerosHandler}
+        ></ToggleButton>
+        {errorModal}
         <Button onClick={dataFilter}>Filter by Time</Button>
         <p>Selected File : {selectedFile ? selectedFile.name : "--"}</p>
         <p>Total Data Points : {dataPoints.length}</p>

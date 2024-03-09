@@ -16,7 +16,7 @@ import GraphContainer from "./GraphContainer.jsx";
 
 const SERVER = constants.SERVER;
 const BASE_URL = constants.SERVER;
-const MAX_LENGTH = 1000;
+const MAX_LENGTH = 750;
 const brightColors = [
   "#FF6384", // Salmon Pink
   "#FFD700", // Gold
@@ -60,7 +60,7 @@ const initialGraphRanges = [
     }
   }
 
-  // Use reduce to average data points within each step
+
 
   return reducedArray;
 }
@@ -272,11 +272,11 @@ const DashBoard = (props) => {
       <div className="data-card">
         <div className="generic-text-label">Resolution : {sampleSize} ms</div>
         <div className="generic-text-label">DataPoints : {duration}</div>
-        {duration > 750 ? (
+        {duration > MAX_LENGTH ? (
           <div className="generic-text-label">
             Data Compression on
             <br></br>
-            Ratio : {Math.ceil(duration / 750)}
+            Ratio : {Math.ceil(duration / MAX_LENGTH)}
           </div>
         ) : null}
       </div>
