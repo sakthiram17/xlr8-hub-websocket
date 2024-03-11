@@ -3,11 +3,15 @@
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     text-align: center;
-    opacity: 0.9;
+  ;
     margin: auto;
     text-align: center;
     z-index: 100;
+    transition: 0.15s;
     backdrop-filter: blur(100px);
+    position: fixed;
+    top:50%;
+    margin: auto;
 }
 
 .success {
@@ -18,4 +22,9 @@
 .error {
     background-color: #ff1c14;
     color: #fff;
+}
+.disabled{
+    opacity:0.5;
+     transform: scale(0);
+
 }

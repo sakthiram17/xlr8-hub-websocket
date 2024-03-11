@@ -107,6 +107,17 @@ const DashBoard = (props) => {
   const turnOnSpinner = () => {
     setSpinner(<LoadingSpinner asOverlay={true}></LoadingSpinner>);
   };
+  const showErrorModal = async (code, message,disabled = false) => {
+    setModalState(<Modal code={code} disabled={disabled}> {message}</Modal>);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
+  const handleModalTimeout = async (code,message) => {
+    await showErrorModal(code, message,true);
+    await showErrorModal(code,message);
+    await showErrorModal(code, message,true);
+    setModalState(null)
+    setSpinner(null)
+  };
   const postResolution = () => {
     turnOnSpinner();
     setTimeout(() => {
@@ -120,37 +131,17 @@ const DashBoard = (props) => {
       .then((res) => {
         if (res && res.data) {
           if (res.data.message === "done") {
-            setModalState(
-              <Modal code="success" disabled={false}>
-                Successfully updated Parameters
-              </Modal>
-            );
-            setTimeout(() => {
-              setModalState(null);
-            }, 1000);
+            handleModalTimeout("success","Successfully updated parameters")
+          
           }
-        } else {
-          turnOffSpinner();
-          setModalState(
-            <Modal code="error" disabled={false}>
-              couldnt update parmeters
-            </Modal>
-          );
-          setTimeout(() => {
-            setModalState(null);
-          }, 1000);
-        }
+          else {
+            console.log(res.data)
+            handleModalTimeout("error",res.data.message)
+          }
+        } 
       })
       .catch((ele) => {
-        turnOffSpinner();
-        setModalState(
-          <Modal code="error" disabled={false}>
-            something went wrong!!
-          </Modal>
-        );
-        setTimeout(() => {
-          setModalState(null);
-        }, 1000);
+        handleModalTimeout("error","something went wrong")
       });
   };
 

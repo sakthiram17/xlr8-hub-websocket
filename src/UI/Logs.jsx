@@ -47,12 +47,21 @@ const Logs = () => {
       }
     } else {
       setErrorModal(
-        <Modal code="error"> Please Select Valid Start and End Time</Modal>
+        <Modal code="error" disabled = {true}> Please Select Valid Start and End Time</Modal>
       );
       setTimeout(() => {
-        setErrorModal(null);
-      }, 1000);
+        setErrorModal( <Modal code="error"> Please Select Valid Start and End Time</Modal>);
+        setTimeout(()=>{
+          setErrorModal(<Modal code="error" disabled = {true}> Please Select Valid Start and End Time</Modal>)
+          setTimeout(()=>{
+            setErrorModal(null)
+          },500)
+        },500)
+      }, 500);
+     
     }
+
+  
   };
   let logs = dataPoints.filter((ele) => {
     let outlier = false;

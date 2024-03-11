@@ -106,6 +106,7 @@ const Input = (props) => {
           onChange={props.handleChange}
           index={props.ind}
           placeholder={props.placeholder}
+          value = {props.value}
         ></input>
       </div>
     );

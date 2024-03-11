@@ -16,9 +16,9 @@
   height: 100px;
   margin: 1px;
   border-radius: 50%;
-  border: 5px solid var(--accent-color);
+  border: 6px solid var(--accent-color);
   border-color:  var(--accent-color) transparent  var(--accent-color) transparent;
-  animation: lds-dual-ring 1.2s linear infinite;
+  animation: lds-dual-ring 0.6s linear infinite;
 }
 
 .loading-spinner__overlay {

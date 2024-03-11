@@ -26,14 +26,20 @@ const actionHandler = (state,action)=>{
                      default:
                             temp = [...state];
           case 'APPEND':
-          temp = [...state, action.data];
-          if(temp.length>=2000)
+           
+          if(state)
+            temp = [...state, action.data];
+          else{
+            temp = []
+          }
+            if(temp.length>=2000)
           {
             temp = temp.slice(temp.length-2000,temp.length)
           }
           temp.sort((a,b)=>{
             return new Date(a.current_time).getTime()- new Date(b.current_time).getTime()
            })
+           return temp;
            break;
           case 'ZERO-FILTER': temp = [...state];
           temp;

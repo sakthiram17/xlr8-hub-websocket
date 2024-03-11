@@ -13,7 +13,11 @@ const Modal = (props)=>{
         
     )}
     else{
-        return null;
+        return (<div className={`modal ${props.code} disabled`}>
+                  {props.children}
+                    <br></br>
+                </div>);
     }
+    
 }
 export default Modal;

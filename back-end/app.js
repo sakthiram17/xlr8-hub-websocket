@@ -381,7 +381,7 @@ wss.on("connection", (socket) => {
 
 app.post("/resolution", (req, res) => {
   let r = req.body;
-
+ 
   if (r.resolution <= 1000 && r.resolution >= 1) {
     clearInterval(webSocketDataDispatcher);
 
@@ -390,9 +390,13 @@ app.post("/resolution", (req, res) => {
 
     // Set up a new interval
     webSocketDataDispatcher = setupWebSocketDataDispatcher(client);
+    res.status(200).send({ message: "done" });
+  }
+  else{
+    res.status(200).send({ message: "Resolution must be integer and must be between 1ms and 1s" });
   }
 
-  res.status(200).send({ message: "done" });
+
 });
 
 app.post("/prompt", (req, res) => {

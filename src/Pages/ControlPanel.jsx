@@ -22,7 +22,17 @@ const ControlPanel = () => {
   const [currentParamters, setCurrentParameters] = useState({});
   const [formData, setFormData] = useState([400, 150, 50, 8, 3]);
   const [isValid, setValidity] = useState([true, true, true, true, true]);
-
+  const showErrorModal = async (code, message,disabled = false) => {
+    setModalState(<Modal code={code} disabled={disabled}> {message}</Modal>);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
+  const handleModalTimeout = async (code,message) => {
+    await showErrorModal(code, message,true);
+    await showErrorModal(code,message);
+    await showErrorModal(code, message,true);
+    setModalState(null)
+    setSpinner(null)
+  };
   let voltage = dataPoints.length && dataPoints[dataPoints.length - 1].voltage;
   let current = dataPoints.length && dataPoints[dataPoints.length - 1].current;
   let power = (voltage * current) / 1000;
@@ -188,37 +198,17 @@ const ControlPanel = () => {
                   turnOffSpinner();
                   if (res && res.data) {
                     if (res.data.message === "done") {
-                      setModalState(
-                        <Modal code="success" disabled={false}>
-                          Successfully Stopped the Converter
-                        </Modal>
-                      );
-                      setTimeout(() => {
-                        setModalState(null);
-                      }, 1000);
+                      handleModalTimeout("success","successfully stopped the converter")
+                    }
+                    else{
+                      handleModalTimeout("error","could not stop converter")
                     }
                   } else {
-                    turnOffSpinner();
-                    setModalState(
-                      <Modal code="error" disabled={false}>
-                        something went wrong!!
-                      </Modal>
-                    );
-                    setTimeout(() => {
-                      setModalState(null);
-                    }, 1000);
+                    handleModalTimeout("error","could not stop converter")
                   }
                 })
                 .catch((ele) => {
-                  turnOffSpinner();
-                  setModalState(
-                    <Modal code="error" disabled={false}>
-                      something went wrong!!
-                    </Modal>
-                  );
-                  setTimeout(() => {
-                    setModalState(null);
-                  }, 1000);
+                  handleModalTimeout("error","no response from server")
                 });
             }}
           >
@@ -244,37 +234,16 @@ const ControlPanel = () => {
                 .then((res) => {
                   if (res && res.data) {
                     if (res.data.message === "done") {
-                      setModalState(
-                        <Modal code="success" disabled={false}>
-                          Successfully updated Parameters
-                        </Modal>
-                      );
-                      setTimeout(() => {
-                        setModalState(null);
-                      }, 1000);
+                 
+                        handleModalTimeout("success","successfully set parameters")
+                      
                     }
                   } else {
-                    turnOffSpinner();
-                    setModalState(
-                      <Modal code="error" disabled={false}>
-                        couldnt update parmeters
-                      </Modal>
-                    );
-                    setTimeout(() => {
-                      setModalState(null);
-                    }, 1000);
+                    handleModalTimeout("error","cannot not update parameters")
                   }
                 })
                 .catch((ele) => {
-                  turnOffSpinner();
-                  setModalState(
-                    <Modal code="error" disabled={false}>
-                      something went wrong!!
-                    </Modal>
-                  );
-                  setTimeout(() => {
-                    setModalState(null);
-                  }, 1000);
+                  handleModalTimeout("error","No Response from server")
                 });
             }}
             inverse={true}
@@ -288,40 +257,21 @@ const ControlPanel = () => {
               axios
                 .get(SERVER + "soft-start")
                 .then((res) => {
-                  turnOffSpinner();
+                  
                   if (res && res.data) {
                     if (res.data.message === "done") {
-                      setModalState(
-                        <Modal code="success" disabled={false}>
-                          Starting the Converter
-                        </Modal>
-                      );
-                      setTimeout(() => {
-                        setModalState(null);
-                      }, 1000);
+                      handleModalTimeout("success","successfully started the converter")
+                    }
+                    else{
+                      handleModalTimeout("error","already started")
                     }
                   } else {
-                    turnOffSpinner();
-                    setModalState(
-                      <Modal code="error" disabled={false}>
-                        something went wrong!!
-                      </Modal>
-                    );
-                    setTimeout(() => {
-                      setModalState(null);
-                    }, 1000);
+                    
+                    handleModalTimeout("error","already started")
                   }
                 })
                 .catch((ele) => {
-                  turnOffSpinner();
-                  setModalState(
-                    <Modal code="error" disabled={false}>
-                      something went wrong!!1
-                    </Modal>
-                  );
-                  setTimeout(() => {
-                    setModalState(null);
-                  }, 1000);
+                  handleModalTimeout("error","No Response from server")
                 });
             }}
           >
