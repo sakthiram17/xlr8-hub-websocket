@@ -40,11 +40,11 @@ const actionHandler = (state,action)=>{
             let startIndex = 0;
             let endIndex = temp.length - 1;
         
-            while (startIndex <= endIndex && temp[startIndex].voltage* temp[startIndex].current/1000 === 0) {
+            while (startIndex <= endIndex && temp[startIndex].voltage* temp[startIndex].current/1000 <= 0.01) {
               startIndex++;
             }
         
-            while (endIndex >= startIndex && temp[startIndex].voltage* temp[startIndex].current/1000 === 0) {
+            while (endIndex >= startIndex && temp[startIndex].voltage* temp[startIndex].current/1000 <= 0.01) {
               endIndex--;
             }
 

@@ -38,12 +38,14 @@ Disclosed is a unique two-stage boost converter system designed for high-voltage
 Converter Specifications:
 
 Gain Expression: (4-3D+D^2)/(1-D)^3
+Output voltage : Gain Expression * input voltage
 Nominal Conditions: 150W, 400V output, 18V input, 50% duty ratio at 50kHz
 Components: 16 in total (3 switches, 3 inductors, 5 diodes, rest capacitors)
 Inductor Ratings: L1(10A, 100uH), L2(6A, 564uH), L3(3A, 3mH)
 Capacitor Voltage Ratings: C1, C2, C3(250V, 4.7uF), C4(250V, 22uF), C5(450V, 47uF)
 Switch Voltage Ratings: S1(100V), S2(200V), S3(600V)
 Web Application:
+
 
 Dashboard:
 
@@ -114,6 +116,24 @@ having developed three novel power converters for high gain dc-dc applications
 
 you can check out his github
 https://github.com/sakthiram17
+
+Frequently asked questions
+
+what is the input current it draws under nominal conidtions?
+ideally it should be drawing P/Iin = 150/18 but it draws around 9.5A with 85-90% efficiency
+what is the safe duty ratio?
+The converter is programmed to operate between 30-58% duty ratio but
+the max safe duty ratio depends on input voltage such the output voltage is 
+always below 450V
+
+
+
+
+
+
+
+
+
 
 `;
 

@@ -7,7 +7,7 @@ const Input = (props) => {
       <div className={props.col ? "form-input-col" : "form-input"}>
         <span className="form-label">{props.label}</span>
         <input
-          type="text"
+          type="number"
           className={props.valid ? "form-number" : "form-number invalid"}
           onChange={props.handleChange}
           index={props.ind}

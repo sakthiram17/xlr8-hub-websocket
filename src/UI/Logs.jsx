@@ -20,16 +20,16 @@ const Logs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSection, setCurrentSection] = useState(1);
   const [isValid, setValidity] = useState(true);
-  const [filterZeros,setFilterZeros] = useState(false)
+  const [filterZeros, setFilterZeros] = useState(false);
   const { controlParameters, controlUpdates } = useControlContext();
-  const [errorModal,setErrorModal] = useState(null)
+  const [errorModal, setErrorModal] = useState(null);
   const switchHandler = (event) => {
     setJson(event.target.checked);
   };
 
-  const filterZerosHandler = (event)=>{
+  const filterZerosHandler = (event) => {
     setFilterZeros(event.target.checked);
-  }
+  };
   const dataPointsSwitchHandler = (event) => {
     setOutliersOnly(event.target.checked);
   };
@@ -40,18 +40,19 @@ const Logs = () => {
     setEndDate(new Date(event.target.value));
   };
   const dataFilter = () => {
-    if(startDate && endDate)
-    {
+    if (startDate && endDate) {
       dispatch({ type: "FILTER", startDate: startDate, endDate: endDate });
-    if(filterZeros)
-    {
-      dispatch({type :'ZERO-FILTER'})
+      if (filterZeros) {
+        dispatch({ type: "ZERO-FILTER" });
+      }
+    } else {
+      setErrorModal(
+        <Modal code="error"> Please Select Valid Start and End Time</Modal>
+      );
+      setTimeout(() => {
+        setErrorModal(null);
+      }, 1000);
     }
-    }
-    setErrorModal(<Modal code = 'error'> Please Select Valid Start and End Time</Modal>)
-    setTimeout(()=>{
-      setErrorModal(null)
-    },1000)
   };
   let logs = dataPoints.filter((ele) => {
     let outlier = false;
@@ -142,14 +143,22 @@ const Logs = () => {
     } else {
       data = logs;
     }
+    const startTime = new Date(dataPoints[0].current_time).getTime();
+    const extractedData = data.map((ele)=>{
+        let temp ={...ele};
+        temp.time = (new Date(ele.current_time).getTime()-startTime)/1000;
+        return temp;
+      }
+      
+    );
     let blob;
     if (json) {
-      const jsonData = JSON.stringify(data, null, 2);
+      const jsonData = JSON.stringify(extractedData, null, 2);
       blob = new Blob([jsonData], { type: "application/json" });
     } else {
       const wb = XLSX.utils.book_new();
       // Create a new worksheet
-      const ws = XLSX.utils.json_to_sheet(dataPoints);
+      const ws = XLSX.utils.json_to_sheet(extractedData);
       // Add the worksheet to the workbook
       XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
       // Save the workbook as an Excel file
@@ -238,7 +247,7 @@ const Logs = () => {
           label="Import Data"
           handleChange={handleFileChange}
         ></Input>
-       
+
         <p className="generic-text-label">Start Time</p>
         <input
           type="datetime-local"
@@ -252,9 +261,9 @@ const Logs = () => {
           style={{ margin: "1rem" }}
         ></input>
         <ToggleButton
-        label = "Filter Zeros at End"
-        autorefresh = {filterZeros}
-        onChange = {filterZerosHandler}
+          label="Filter Zeros at End"
+          autorefresh={filterZeros}
+          onChange={filterZerosHandler}
         ></ToggleButton>
         {errorModal}
         <Button onClick={dataFilter}>Filter by Time</Button>
