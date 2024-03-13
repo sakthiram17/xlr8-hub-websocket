@@ -110,6 +110,8 @@ const GraphContainer = ({
         <h2>{yLabel} </h2>
       </div>
       <div className="graph-container">
+         {!is_small? 
+         <React.Fragment>
         <Input
           label="Zoom"
           place="asdf"
@@ -145,7 +147,7 @@ const GraphContainer = ({
           handleChange={(event) => {
             handleZoomChange(index, parseInt(event.target.value * 6), "max");
           }}
-        ></Input>
+        ></Input></React.Fragment> :null}
         <ResponsiveContainer width="90%" height={graphHeight}>
           <LineChart
             width={1000}

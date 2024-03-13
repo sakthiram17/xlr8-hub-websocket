@@ -77,6 +77,8 @@ const DashBoard = (props) => {
   const [modalState, setModalState] = useState(null);
   const [width, getWidth] = useState(window.innerWidth);
   const [is_small, setIsSmall] = useState(false);
+  const [small,setSmall] = useState(false);
+  const [maxSamples,setMaxSamples]= useState(750);
   const { controlParameters, controlUpdates } = useControlContext();
   const duration = controlParameters.duration;
   const sampleSize = controlParameters.sampleSize;
@@ -96,8 +98,11 @@ const DashBoard = (props) => {
     controlUpdates({ type: 'update', data: { ...controlParameters, autofresh: isChecked } });
   };
   const disableKnobsHandler = (event) => {
-    setIsSmall(event.target.checked);
+    setSmall(event);
   };
+  const handleMaxSampleChange = (event)=>{
+    setMaxSamples(event.target.value);
+  }
 
   const turnOffSpinner = () => {
     setTimeout(() => {
@@ -199,8 +204,8 @@ const DashBoard = (props) => {
           temp[0].time = 0;
         }
         let averagedData;
-        if (duration > MAX_LENGTH) {
-          averagedData = [...reduceArrayToFixedSize(temp, MAX_LENGTH)];
+        if (duration > maxSamples) {
+          averagedData = [...reduceArrayToFixedSize(temp, maxSamples)];
           return averagedData;
         }
       }
@@ -223,7 +228,28 @@ const DashBoard = (props) => {
   return (
     <div className="Dashboard-Page">
       {spinner}
-
+      <div
+  
+        style={{
+          display: "flex",
+          flexFlow: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          flexWrap:'wrap'
+        }}
+      >
+   
+      <div className="data-card">
+        <div className="generic-text-label">Resolution : {sampleSize} ms</div>
+        <div className="generic-text-label">DataPoints : {duration}</div>
+        {duration > maxSamples ? (
+          <div className="generic-text-label">
+            Data Compression on
+            <br></br>
+            Ratio : {Math.ceil(duration / maxSamples)}
+          </div>
+        ) : null}
+      </div>
       <div
         style={{
           display: "flex",
@@ -231,6 +257,7 @@ const DashBoard = (props) => {
           justifyContent: "center",
           alignItems: "center",
         }}
+        className="data-card"
       >
         <ToggleButton
           label="AutoRefresh"
@@ -238,7 +265,7 @@ const DashBoard = (props) => {
           onChange={toggleButtonHandler}
         ></ToggleButton>
         <Input
-          type="text"
+          type="number"
           label={`No of Samples (${sampleSize} ms each)`}
           place="Title "
           valid={isValid}
@@ -248,7 +275,7 @@ const DashBoard = (props) => {
         ></Input>
 
         <Input
-          type="text"
+          type="number"
           label="Resolution"
           place="Title "
           valid={isValid2}
@@ -256,20 +283,20 @@ const DashBoard = (props) => {
           handleChange={handleSampleSizeChange}
           value={controlParameters.sampleSize}
         ></Input>
+        <Input
+          type="number"
+          label="Maximum DataPoints Before Compression"
+          place="Title "
+          valid={isValid2}
+          ind={2}
+          handleChange={handleMaxSampleChange}
+          value={maxSamples}
+        ></Input>
+
 
         <Button onClick={postResolution}>Set Resolution</Button>
         {modalState}
       </div>
-      <div className="data-card">
-        <div className="generic-text-label">Resolution : {sampleSize} ms</div>
-        <div className="generic-text-label">DataPoints : {duration}</div>
-        {duration > MAX_LENGTH ? (
-          <div className="generic-text-label">
-            Data Compression on
-            <br></br>
-            Ratio : {Math.ceil(duration / MAX_LENGTH)}
-          </div>
-        ) : null}
       </div>
 
       <div>
@@ -285,7 +312,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
@@ -304,7 +331,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
@@ -322,7 +349,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
@@ -340,7 +367,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData
           .map((ele) => {
             return {
@@ -367,7 +394,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
@@ -385,7 +412,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
@@ -403,7 +430,7 @@ const DashBoard = (props) => {
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
-        is_small={is_small}
+        is_small={is_small||small}
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,

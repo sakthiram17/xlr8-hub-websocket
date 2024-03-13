@@ -3,7 +3,7 @@
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     text-align: center;
-  ;
+    opacity: 0.9;
     margin: auto;
     text-align: center;
     z-index: 100;
@@ -11,7 +11,10 @@
     backdrop-filter: blur(100px);
     position: fixed;
     top:50%;
+    font-size: 1.5rem;
     margin: auto;
+    transition: 0.15s ease-in-out;
+
 }
 
 .success {
