@@ -33,9 +33,9 @@ const initialGraphRanges = [
   { min: 0, max: 1000 },
   { min: 0, max: 300 },
   { min: 0, max: 600 },
-  { min: 0, max: 100 },
-  { min: 0, max: 100 },
-  { min: 0, max: 100 },
+  { min: -1, max: 100 },
+  { min: -1, max: 100 },
+  { min: -1, max: 100 },
 ];function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
   const stepSize = Math.ceil(dataArray.length / fixedSize);

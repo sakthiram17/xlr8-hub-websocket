@@ -37,7 +37,7 @@ const ControlPanel = () => {
   let current = dataPoints.length && dataPoints[dataPoints.length - 1].current;
   let power = (voltage * current) / 1000;
   const onChangeHandler = (event) => {
-    setClosedLoop(event.target.checked);
+    setClosedLoop(event);
   };
   const formChangeHandler = (event) => {
     let index = event.target.getAttribute("index");

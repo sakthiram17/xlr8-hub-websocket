@@ -26,18 +26,33 @@ const Logs = () => {
   const switchHandler = (event) => {
     setJson(event.target.checked);
   };
+  const DateToString =(date)=>
+  {
+    let dateTime = new Date(date);
+    const year = dateTime.getFullYear();
+    const month = String(dateTime.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+    const day = String(dateTime.getDate()).padStart(2, "0");
+    const hours = String(dateTime.getHours()).padStart(2, "0");
+    const minutes = String(dateTime.getMinutes()).padStart(2, "0");
+
+    // Construct the formatted date string
+    const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    return formattedDateTime;
+  }
 
   const filterZerosHandler = (event) => {
-    setFilterZeros(event.target.checked);
+    setFilterZeros(event);
   };
   const dataPointsSwitchHandler = (event) => {
     setOutliersOnly(event.target.checked);
   };
   const handleDateChange = (event) => {
     setStartDate(new Date(event.target.value));
+    localStorage.setItem("start-date", JSON.stringify(event.target.value));
   };
   const handleEndDateChange = (event) => {
     setEndDate(new Date(event.target.value));
+    localStorage.setItem("end-date", JSON.stringify(event.target.value));
   };
   const dataFilter = () => {
     if (startDate && endDate) {
@@ -47,21 +62,28 @@ const Logs = () => {
       }
     } else {
       setErrorModal(
-        <Modal code="error" disabled = {true}> Please Select Valid Start and End Time</Modal>
+        <Modal code="error" disabled={true}>
+          {" "}
+          Please Select Valid Start and End Time
+        </Modal>
       );
       setTimeout(() => {
-        setErrorModal( <Modal code="error"> Please Select Valid Start and End Time</Modal>);
-        setTimeout(()=>{
-          setErrorModal(<Modal code="error" disabled = {true}> Please Select Valid Start and End Time</Modal>)
-          setTimeout(()=>{
-            setErrorModal(null)
-          },500)
-        },500)
+        setErrorModal(
+          <Modal code="error"> Please Select Valid Start and End Time</Modal>
+        );
+        setTimeout(() => {
+          setErrorModal(
+            <Modal code="error" disabled={true}>
+              {" "}
+              Please Select Valid Start and End Time
+            </Modal>
+          );
+          setTimeout(() => {
+            setErrorModal(null);
+          }, 500);
+        }, 500);
       }, 500);
-     
     }
-
-  
   };
   let logs = dataPoints.filter((ele) => {
     let outlier = false;
@@ -153,13 +175,11 @@ const Logs = () => {
       data = logs;
     }
     const startTime = new Date(dataPoints[0].current_time).getTime();
-    const extractedData = data.map((ele)=>{
-        let temp ={...ele};
-        temp.time = (new Date(ele.current_time).getTime()-startTime)/1000;
-        return temp;
-      }
-      
-    );
+    const extractedData = data.map((ele) => {
+      let temp = { ...ele };
+      temp.time = (new Date(ele.current_time).getTime() - startTime) / 1000;
+      return temp;
+    });
     let blob;
     if (json) {
       const jsonData = JSON.stringify(extractedData, null, 2);
@@ -246,6 +266,15 @@ const Logs = () => {
       Next
     </Button>
   );
+  useEffect(() => {
+    let startDa = JSON.parse(localStorage.getItem("start-date"));
+    let endDa = JSON.parse(localStorage.getItem("end-date"));
+    setStartDate(new Date(startDa));
+    setEndDate(new Date(endDa));
+    if (endDate) {
+      console.log(DateToString(endDa));
+    }
+  }, []);
 
   return (
     <div className="logs">
@@ -262,12 +291,14 @@ const Logs = () => {
           type="datetime-local"
           onChange={handleDateChange}
           style={{ margin: "1rem" }}
+          value={startDate ? DateToString(startDate) : null}
         ></input>
         <p className="generic-text-label">End Time</p>
         <input
           type="datetime-local"
           onChange={handleEndDateChange}
           style={{ margin: "1rem" }}
+          value={endDate ? DateToString(endDate) : null}
         ></input>
         <ToggleButton
           label="Filter Zeros at End"
