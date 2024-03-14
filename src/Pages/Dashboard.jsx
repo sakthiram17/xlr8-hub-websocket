@@ -113,8 +113,8 @@ const DashBoard = (props) => {
     setSpinner(<LoadingSpinner asOverlay={true}></LoadingSpinner>);
   };
   const showErrorModal = async (code, message,disabled = false) => {
-    setModalState(<Modal code={code} disabled={disabled}> {message}</Modal>);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    setModalState(<Modal code={code} disabled={disabled} disableKnobsHandler> {message}</Modal>);
+    await new Promise(resolve => setTimeout(resolve, 2000));
   };
   const handleModalTimeout = async (code,message) => {
     await showErrorModal(code, message,true);
@@ -229,14 +229,7 @@ const DashBoard = (props) => {
     <div className="Dashboard-Page">
       {spinner}
       <div
-  
-        style={{
-          display: "flex",
-          flexFlow: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          flexWrap:'wrap'
-        }}
+      className="flex-box-incol"
       >
    
       <div className="data-card">

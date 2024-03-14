@@ -6,7 +6,7 @@ const Modal = (props)=>{
     {
        
     return(
-        <div className  = {`modal ${props.code}`} >
+        <div className  = {`modal ${props.code} `} >
             {props.children}
             <br></br>
         </div>

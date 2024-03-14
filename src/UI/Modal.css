@@ -13,7 +13,7 @@
     top:50%;
     font-size: 1.5rem;
     margin: auto;
-    transition: 0.15s ease-in-out;
+    transition: 0.3s ease-in-out;
 
 }
 
@@ -23,11 +23,17 @@
 }
 
 .error {
-    background-color: #ff1c14;
+    background-color: #d6210d;
     color: #fff;
 }
 .disabled{
     opacity:0.5;
      transform: scale(0);
+     translate:-80vw;
 
+}
+.disabled-2{
+    opacity:0.5;
+    transform: scale(0);
+    translate: 80vw;
 }
