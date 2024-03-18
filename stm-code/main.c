@@ -1,6 +1,3 @@
-/* USER CODE BEGIN Header */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stdlib.h"
 #include "stm32f4xx_hal.h"
@@ -26,7 +23,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+#define NUM_READINGS 5000
 
+extern ADC_HandleTypeDef hadc1;
+extern float mf; // Assuming this variable is declared globally
+
+uint32_t adcReadings[NUM_READINGS] = {0};
+volatile uint32_t readingsCount = 0;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart6;
@@ -159,35 +162,36 @@ int main(void)
       entireData.set_duty = (parameters.duty_ratio);
       entireData.kp = (parameters.kp);// make this short
       entireData.power_limit = 123;
-      HAL_UART_Transmit(&huart2, ( uint8_t *)&entireData, sizeof(entireData),HAL_MAX_DELAY);
+      HAL_UART_Transmit_IT(&huart2, ( uint8_t *)&entireData, sizeof(entireData));
 
 
   }
   void receive_data()
   {
-	  HAL_UART_Receive(&huart2, (uint8_t*)rBuffer, sizeof(rBuffer), 100);
+	  HAL_UART_Receive_IT(&huart2, (uint8_t*)rBuffer, sizeof(rBuffer));
 	  memcpy(&parameters,rBuffer,sizeof(parameters));
 
   }
-  float read_Voltage()
-  {
-      int sum =0;
+  float read_Voltage() {
+      readingsCount = 0;
 
-      for (int i = 0; i < 5000; i++)
-      {
+      // Start ADC conversion
+      for (int i = 0; i < NUM_READINGS; i++) {
           HAL_ADC_Start(&hadc1);
-          HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-          raw = HAL_ADC_GetValue(&hadc1);
-
-           sum += raw;
+          HAL_ADC_PollForConversion(&hadc1, 10);
+          adcReadings[i] = HAL_ADC_GetValue(&hadc1);
       }
 
+      // Calculate average of the readings
+      uint32_t sum = 0;
+      for (int i = 0; i < NUM_READINGS; i++) {
+          sum += adcReadings[i];
 
+      }
+      float averageRaw = (float)sum / NUM_READINGS;
+      float voltage = mf * averageRaw;
 
-      int temp = sum /5000;  // Adjust the divisor accordingly
-      voltage = mf * temp;
       return voltage;
-  }
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -202,8 +206,8 @@ int main(void)
      while (1)
      {
     	 receive_data();
-    	 HAL_Delay(5);
-         float x = rand() % (410 - 340 + 1) + 340;
+    	 HAL_Delay(1);
+         float x;
          duty = duty/100;
          x = read_Voltage();
          duty = duty*100;
@@ -225,31 +229,7 @@ int main(void)
          {
 
 
-                 if((voltage> (ref_voltage-delta)   &&  voltage < (ref_voltage +delta)))
-                 {
-
-                 }
-                 else if((voltage<(ref_voltage)))
-       	  	  {
-               	  if(((ref_voltage- voltage)/(100) < 0.001))
-               	  	  				 {
-               	  	  			 duty = duty + 0.01;
-               	  	  				 }
-               	  else {duty = duty + ((ref_voltage- voltage)/(100))* alpha ;
-               	  }
-
-
-       	  	  }
-       	  	  else if((voltage>(ref_voltage)))
-       	  	  {
-
-       	  		 if(((voltage- ref_voltage)/(100) < 0.001))
-       	  			  				 {
-       	  			  			 duty = duty - 0.01;
-       	  			  				 }
-       	  		 else{duty = duty - ((voltage- ref_voltage)/(100))* alpha ;}
-
-       	  	  }
+        	     duty = duty + ((ref_voltage- voltage)/(100))* alpha;
                  if(duty >= 58)
                  {
                	  duty = 58;
@@ -391,7 +371,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -461,14 +441,10 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-
-  sConfigOC.Pulse = 1000;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
@@ -540,7 +516,7 @@ static void MX_USART6_UART_Init(void)
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
+  huart6.Init.BaudRate = 1152000;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;
