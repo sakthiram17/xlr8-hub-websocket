@@ -20,22 +20,38 @@ const ControlPanel = () => {
   const [modalState, setModalState] = useState(null);
   const [spinner, setSpinner] = useState(null);
   const [currentParamters, setCurrentParameters] = useState({});
-  const [formData, setFormData] = useState([400, 150, 50, 8, 3]);
-  const [isValid, setValidity] = useState([true, true, true, true, true]);
-  const showErrorModal = async (code, message,disabled = false) => {
-    setModalState(<Modal code={code} disabled={disabled}> {message}</Modal>);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const [formData, setFormData] = useState([400, 150, 50, 8, 3, 200]);
+  const [constantCurrent, setConstantCurrent] = useState(false);
+  const [isValid, setValidity] = useState([true, true, true, true, true, true]);
+  const showErrorModal = async (code, message, disabled = false) => {
+    setModalState(
+      <Modal code={code} disabled={disabled}>
+        {" "}
+        {message}
+      </Modal>
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
-  const handleModalTimeout = async (code,message) => {
-    await showErrorModal(code, message,true);
-    await showErrorModal(code,message);
-    await showErrorModal(code, message,true);
-    setModalState(null)
-    setSpinner(null)
+  const handleModalTimeout = async (code, message) => {
+    await showErrorModal(code, message, true);
+    await showErrorModal(code, message);
+    await showErrorModal(code, message, true);
+    setModalState(null);
+    setSpinner(null);
   };
   let voltage = dataPoints.length && dataPoints[dataPoints.length - 1].voltage;
   let current = dataPoints.length && dataPoints[dataPoints.length - 1].current;
   let power = (voltage * current) / 1000;
+  let formValidity = true;
+  if (closedLoop) {
+    if (constantCurrent) {
+      formValidity = formValidity && isValid[5];
+    } else {
+      formValidity = formValidity && isValid[0];
+    }
+  } else {
+    formValidity = formValidity && isValid[2];
+  }
   const onChangeHandler = (event) => {
     setClosedLoop(event);
   };
@@ -72,7 +88,13 @@ const ControlPanel = () => {
     if (index == 3) {
       temp[3] = event.target.value;
     }
-
+    if (index == 5) {
+      temp[5] = event.target.value;
+      if (event.target.value >= 250 || event.target.value <= 80) {
+        tempV[5] = 0;
+      }
+    }
+    console.log(index);
     setFormData(temp);
     setValidity(tempV);
   };
@@ -83,6 +105,9 @@ const ControlPanel = () => {
   };
   const turnOnSpinner = () => {
     setSpinner(<LoadingSpinner asOverlay={true}></LoadingSpinner>);
+  };
+  const updateCLosedLoopMode = (checked) => {
+    setConstantCurrent(checked);
   };
   const fetchData = async () => {
     let res;
@@ -104,7 +129,6 @@ const ControlPanel = () => {
   useEffect(() => {
     setInterval(updateState, 500);
   }, []);
-
 
   return (
     <div className="control-page">
@@ -136,15 +160,28 @@ const ControlPanel = () => {
           autorefresh={closedLoop}
         ></ToggleButton>
 
-        <Input
-          type="number"
-          label="Ref Voltage (V)  "
-          place="Reference Voltage "
-          ind={0}
-          handleChange={formChangeHandler}
-          value={formData[0]}
-          valid={isValid[0]}
-        ></Input>
+        {closedLoop &&
+          (!constantCurrent ? (
+            <Input
+              type="number"
+              label="Ref Voltage (V)  "
+              place="Reference Voltage "
+              ind={0}
+              handleChange={formChangeHandler}
+              value={formData[0]}
+              valid={isValid[0]}
+            ></Input>
+          ) : (
+            <Input
+              type="number"
+              label="Ref Current (mA)  "
+              place="Reference Voltage "
+              ind={5}
+              handleChange={formChangeHandler}
+              value={formData[5]}
+              valid={isValid[5]}
+            ></Input>
+          ))}
 
         <Input
           type="number"
@@ -155,6 +192,7 @@ const ControlPanel = () => {
           ind={1}
           valid={isValid[1]}
         ></Input>
+
         {!closedLoop ? (
           <Input
             type="number"
@@ -169,6 +207,11 @@ const ControlPanel = () => {
 
         {closedLoop ? (
           <React.Fragment>
+            <ToggleButton
+              label={constantCurrent ? "Constant Current " : "Constant Voltage"}
+              onChange={updateCLosedLoopMode}
+              autorefresh={constantCurrent}
+            ></ToggleButton>
             <Input
               type="number"
               label="Proportinal Constant"
@@ -183,7 +226,7 @@ const ControlPanel = () => {
               ind={4}
               label="Integral Constant"
               valid={true}
-              value = {formData[4]}
+              value={formData[4]}
             ></Input>
           </React.Fragment>
         ) : null}
@@ -198,24 +241,26 @@ const ControlPanel = () => {
                   turnOffSpinner();
                   if (res && res.data) {
                     if (res.data.message === "done") {
-                      handleModalTimeout("success","successfully stopped the converter")
-                    }
-                    else{
-                      handleModalTimeout("error","could not stop converter")
+                      handleModalTimeout(
+                        "success",
+                        "successfully stopped the converter"
+                      );
+                    } else {
+                      handleModalTimeout("error", "could not stop converter");
                     }
                   } else {
-                    handleModalTimeout("error","could not stop converter")
+                    handleModalTimeout("error", "could not stop converter");
                   }
                 })
                 .catch((ele) => {
-                  handleModalTimeout("error","no response from server")
+                  handleModalTimeout("error", "no response from server");
                 });
             }}
           >
             Soft Stop
           </Button>
           <Button
-            disabled ={!(isValid[0] && isValid[1] &&isValid[2])}
+            disabled={!formValidity}
             onClick={() => {
               turnOnSpinner();
               setTimeout(() => {
@@ -228,22 +273,24 @@ const ControlPanel = () => {
                   power_limit: formData[1] || 200,
                   duty_ratio: formData[2] || 30,
                   kp: formData[3],
-                  mode: closedLoop ? 1 : 0,
-                  ki: 0,
+                  mode: closedLoop ? (constantCurrent ? 5 : 4) : 1,
+                  ki: formData[4],
+                  ref_current: formData[5],
                 })
                 .then((res) => {
                   if (res && res.data) {
                     if (res.data.message === "done") {
-                 
-                        handleModalTimeout("success","successfully set parameters")
-                      
+                      handleModalTimeout(
+                        "success",
+                        "successfully set parameters"
+                      );
                     }
                   } else {
-                    handleModalTimeout("error","cannot not update parameters")
+                    handleModalTimeout("error", "cannot not update parameters");
                   }
                 })
                 .catch((ele) => {
-                  handleModalTimeout("error","No Response from server")
+                  handleModalTimeout("error", "No Response from server");
                 });
             }}
             inverse={true}
@@ -252,26 +299,25 @@ const ControlPanel = () => {
           </Button>
           <Button
             onClick={() => {
-           
               turnOnSpinner();
               axios
                 .get(SERVER + "soft-start")
                 .then((res) => {
-                  
                   if (res && res.data) {
                     if (res.data.message === "done") {
-                      handleModalTimeout("success","successfully started the converter")
-                    }
-                    else{
-                      handleModalTimeout("error","already started")
+                      handleModalTimeout(
+                        "success",
+                        "successfully started the converter"
+                      );
+                    } else {
+                      handleModalTimeout("error", "already started");
                     }
                   } else {
-                    
-                    handleModalTimeout("error","already started")
+                    handleModalTimeout("error", "already started");
                   }
                 })
                 .catch((ele) => {
-                  handleModalTimeout("error","No Response from server")
+                  handleModalTimeout("error", "No Response from server");
                 });
             }}
           >
@@ -280,7 +326,6 @@ const ControlPanel = () => {
         </div>
       </div>
       <div className="widgets-2">
-      
         <Card
           header="Load Current"
           title="Current "
@@ -289,12 +334,11 @@ const ControlPanel = () => {
         >
           <Guage
             unit="mA"
-            bg = "gold"
-            max = "750"
+            bg="gold"
+            max="750"
             value={current ? parseFloat(current).toFixed(2) : 0}
           ></Guage>
         </Card>
-
 
         <Card
           header=" DC Bus Voltage "
@@ -304,7 +348,7 @@ const ControlPanel = () => {
         >
           <Guage
             unit="V"
-            max = "450"
+            max="450"
             value={voltage ? parseFloat(voltage).toFixed(2) : 0}
           ></Guage>
         </Card>
@@ -318,7 +362,7 @@ const ControlPanel = () => {
             unit="W"
             value={power ? power.toFixed(2) : null}
             type={true}
-            max = "225"
+            max="225"
           ></Guage>
         </Card>
       </div>

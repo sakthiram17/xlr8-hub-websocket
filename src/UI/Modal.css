@@ -27,10 +27,9 @@
     color: #fff;
 }
 .disabled{
-    opacity:0.5;
+    opacity:0.1;
      transform: scale(0);
-     translate:-80vw;
-
+    
 }
 .disabled-2{
     opacity:0.5;

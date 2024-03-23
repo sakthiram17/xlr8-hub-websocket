@@ -1,6 +1,3 @@
-/* USER CODE BEGIN Header */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stdlib.h"
 #include "stm32f4xx_hal.h"
@@ -25,7 +22,13 @@
 #define SOFT_START_STOP_DELTA 0.1
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+#define NUM_READINGS 5000
 
+extern ADC_HandleTypeDef hadc1;
+extern float mf; // Assuming this variable is declared globally
+
+uint32_t adcReadings[NUM_READINGS] = {0};
+volatile uint32_t readingsCount = 0;
 TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart2;
@@ -168,6 +171,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
   void transmit_data(float voltage ,float current,float duty)
+<<<<<<< HEAD
     {
         entireData.voltage = voltage;
         entireData.current =(voltage*0.938);
@@ -178,6 +182,18 @@ int main(void)
         entireData.kp = (parameters.kp);// make this short
         entireData.power_limit = 123;
         HAL_UART_Transmit(&huart2, ( uint8_t *)&entireData, sizeof(entireData),HAL_MAX_DELAY);
+=======
+  {
+      entireData.voltage = voltage;
+      entireData.current =(voltage*0.938);
+      entireData.duty_ratio = (duty);
+      entireData.mode = (parameters.mode);//make this short
+      entireData.ref_voltage = (parameters.ref_voltage);
+      entireData.set_duty = (parameters.duty_ratio);
+      entireData.kp = (parameters.kp);// make this short
+      entireData.power_limit = 123;
+      HAL_UART_Transmit_IT(&huart2, ( uint8_t *)&entireData, sizeof(entireData));
+>>>>>>> 28af3b8e567577439cd9b6163a5ce36fb0dcc0ea
 
 
     }
@@ -333,7 +349,139 @@ int main(void)
       /* USER CODE BEGIN 3 */
     /* USER CODE END 3 */
   }
+<<<<<<< HEAD
 
+=======
+  void receive_data()
+  {
+	  HAL_UART_Receive_IT(&huart2, (uint8_t*)rBuffer, sizeof(rBuffer));
+	  memcpy(&parameters,rBuffer,sizeof(parameters));
+
+  }
+  float read_Voltage() {
+      readingsCount = 0;
+
+      // Start ADC conversion
+      for (int i = 0; i < NUM_READINGS; i++) {
+          HAL_ADC_Start(&hadc1);
+          HAL_ADC_PollForConversion(&hadc1, 10);
+          adcReadings[i] = HAL_ADC_GetValue(&hadc1);
+      }
+
+      // Calculate average of the readings
+      uint32_t sum = 0;
+      for (int i = 0; i < NUM_READINGS; i++) {
+          sum += adcReadings[i];
+
+      }
+      float averageRaw = (float)sum / NUM_READINGS;
+      float voltage = mf * averageRaw;
+
+      return voltage;
+  /* USER CODE BEGIN 2 */
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+    /* USER CODE END WHILE */
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+
+     while (1)
+     {
+    	 receive_data();
+    	 HAL_Delay(1);
+         float x;
+         duty = duty/100;
+         x = read_Voltage();
+         duty = duty*100;
+         float voltage = x;
+         ref_voltage = parameters.ref_voltage;
+         alpha=parameters.kp;
+         if(parameters.mode==0)
+         {
+        	 duty = parameters.duty_ratio;
+//        	 if(voltage>=over_voltage)
+//        	 {
+//        		 parameters.mode = 5;
+//        		 float temp = parameters.duty_ratio - 20;
+//        		 parameters.duty_ratio = temp>0?temp:0;
+//        	 }
+        	 transmit_data(x,x,duty);
+         }
+         else if(parameters.mode==1)
+         {
+
+
+        	     duty = duty + ((ref_voltage- voltage)/(100))* alpha;
+                 if(duty >= 58)
+                 {
+               	  duty = 58;
+                 }
+                 if(duty<=30)
+                 {
+               	  duty = 30;
+                 }
+
+                 TIM1->CCR1 = (int)(duty * 2000/100);
+                 TIM1->CCR2 = (int)((duty) * 2000/100);
+                 TIM1->CCR3 = (int)((duty) * 2000/100);
+
+                 sprintf(MSG, "duty ratio X = %d \r\n", (int)(duty*20));
+             transmit_data(x,x,duty);
+         }
+         else if(parameters.mode==2)
+         {
+        	 while(duty>0)
+        	 {
+        		 HAL_Delay(10);
+        		 duty =  duty - SOFT_START_STOP_DELTA;;
+        		 TIM1->CCR1=(int)(duty*20);
+        		 duty = duty/100;
+        		 transmit_data(x,x,duty);
+        		 if(duty<0)
+        		 {
+        			 duty = 0;
+        		 }
+
+        	 }
+
+         }
+         else if(parameters.mode==3)
+         {
+        	 while(duty<parameters.duty_ratio)
+        	 {
+
+        		 HAL_Delay(10);
+        		 duty = duty + SOFT_START_STOP_DELTA;
+        		 TIM1->CCR1=(int)(duty*20);
+        		 duty = duty/100;
+
+        		         duty = duty*100;
+
+        	 }
+              parameters.mode=0;
+              transmit_data(x,x,duty);
+
+         }
+
+             TIM1->CCR1 = (int)(duty * 2000/100);
+             TIM1->CCR2 = (int)((duty) * 2000/100);
+
+             TIM1->CCR3 = (int)(duty * 2000/100);
+
+
+             transmit_data(x,x,duty);
+       /* USER CODE END WHILE */
+
+       /* USER CODE BEGIN 3 */
+     }
+    /* USER CODE BEGIN 3 */
+  /* USER CODE END 3 */
+}
+>>>>>>> 28af3b8e567577439cd9b6163a5ce36fb0dcc0ea
 
 /**
   * @brief System Clock Configuration
@@ -555,7 +703,7 @@ static void MX_USART6_UART_Init(void)
 
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
+  huart6.Init.BaudRate = 1152000;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;
