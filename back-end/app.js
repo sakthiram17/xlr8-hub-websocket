@@ -11,11 +11,12 @@ const { parse } = require("path");
 const exp = require("constants");
 const fs = require("node:fs");
 var arguments = process.argv;
+let port;
 if (arguments[2] !== "stand-alone") {
-  let port;
+
   try {
     port = new SerialPort({
-      path: "COM3",
+      path: "COM5",
       baudRate: 1152000,
       stopBits: 1,
       parity: "none",
@@ -151,7 +152,7 @@ let webSocketDataDispatcher;
 
 let buffer = "";
 
-// const parser = port.pipe(new createInterface({ input:port,delimiter: '\n' }));
+const parser = port.pipe(new createInterface({ input:port,delimiter: '\n' }));
 let dataObject = {
   voltage: 0,
   current: 0,
@@ -448,6 +449,7 @@ function setupWebSocketDataDispatcher(socket) {
           console.error("Error appending data:", err);
         } else {
           console.log("Data appended successfully!");
+          console.log(dataObject);
         }
       });
     }

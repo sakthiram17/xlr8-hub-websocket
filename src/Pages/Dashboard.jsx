@@ -152,7 +152,7 @@ const DashBoard = (props) => {
 
   const durationChangeHandler = (event) => {
     setValidity(event.target.value > 0);
-    if (event.target.value > 0) {
+    if (event.target.value >= 0) {
       let prev = { ...controlParameters };
       console.log(prev);
       prev.duration = event.target.value;

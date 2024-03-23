@@ -6,8 +6,6 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 #include <stdio.h>
-#define FIXED_POINT_SCALE 1000
-#define SOFT_START_STOP_DELTA 0.1
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -23,14 +21,15 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 /* USER CODE END PM */
-
+#define FIXED_POINT_SCALE 1000
+#define SOFT_START_STOP_DELTA 0.1
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
 TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
-UART_HandleTypeDef huart6;
+
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 
@@ -74,6 +73,15 @@ struct EntireData entireData;
 
 
 /* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_ADC1_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_USART6_UART_Init(void);
+/* USER CODE BEGIN PFP */
 char receivedBuffer[81];
 float generateRandomVoltage(float baseVoltage, float percentageRange) {
     float randomFactor = ((float)rand() / RAND_MAX) * 2 * percentageRange - percentageRange;
@@ -97,19 +105,6 @@ void initializeStructures() {
 }
 
 char rBuffer[150];
-//MODE = 0 , OPEN LOOP, MODE = 1 CLOSED LOOP, MODE == 2 Soft stop
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_ADC1_Init(void);
-static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
-static void MX_USART2_UART_Init(void);
-static void MX_USART6_UART_Init(void);
-/* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -141,6 +136,29 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  char receivedBuffer[81];
+  float generateRandomVoltage(float baseVoltage, float percentageRange) {
+      float randomFactor = ((float)rand() / RAND_MAX) * 2 * percentageRange - percentageRange;
+      return baseVoltage + baseVoltage * randomFactor;
+  }
+  void parseStringToParameters(const char *buffer) {
+
+  }
+  void initializeStructures() {
+      // Initialize SensorData structure
+      struct SensorData sensorDataInit = {0.0, 0.0, 0.0};
+      sensorData = sensorDataInit;
+
+      // Initialize Parameters structure
+      struct Parameters parametersInit = {0, 0, 0, 0, 0};
+      parameters = parametersInit;
+
+      // Initialize EntireData structure
+      struct EntireData entireDataInit = {0, 0, 0, 0, 0, 0, 0};
+      entireData = entireDataInit;
+  }
+
+  char rBuffer[150];
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -150,171 +168,172 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
   void transmit_data(float voltage ,float current,float duty)
-  {
-      entireData.voltage = voltage;
-      entireData.current =(voltage*0.938);
-      entireData.duty_ratio = (duty);
-      entireData.mode = (parameters.mode);//make this short
-      entireData.ref_voltage = (parameters.ref_voltage);
-      entireData.set_duty = (parameters.duty_ratio);
-      entireData.kp = (parameters.kp);// make this short
-      entireData.power_limit = 123;
-      HAL_UART_Transmit(&huart2, ( uint8_t *)&entireData, sizeof(entireData),HAL_MAX_DELAY);
+    {
+        entireData.voltage = voltage;
+        entireData.current =(voltage*0.938);
+        entireData.duty_ratio = (duty);
+        entireData.mode = (parameters.mode);//make this short
+        entireData.ref_voltage = (parameters.ref_voltage);
+        entireData.set_duty = (parameters.duty_ratio);
+        entireData.kp = (parameters.kp);// make this short
+        entireData.power_limit = 123;
+        HAL_UART_Transmit(&huart2, ( uint8_t *)&entireData, sizeof(entireData),HAL_MAX_DELAY);
 
 
+    }
+    void receive_data()
+    {
+  	  HAL_UART_Receive(&huart2, (uint8_t*)rBuffer, sizeof(rBuffer), 100);
+  	  memcpy(&parameters,rBuffer,sizeof(parameters));
+
+    }
+    float read_Voltage()
+    {
+        int sum =0;
+
+        for (int i = 0; i < 5000; i++)
+        {
+            HAL_ADC_Start(&hadc1);
+            HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+            raw = HAL_ADC_GetValue(&hadc1);
+
+             sum += raw;
+        }
+
+
+
+        int temp = sum /5000;  // Adjust the divisor accordingly
+        voltage = mf * temp;
+        return voltage;
+    }
+    /* USER CODE BEGIN 2 */
+
+    /* USER CODE END 2 */
+
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+      /* USER CODE END WHILE */
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+
+       while (1)
+       {
+      	 receive_data();
+      	 HAL_Delay(5);
+           float x = rand() % (410 - 340 + 1) + 340;
+           duty = duty/100;
+           x = read_Voltage();
+           duty = duty*100;
+           float voltage = x;
+           ref_voltage = parameters.ref_voltage;
+           alpha=parameters.kp;
+           if(parameters.mode==0)
+           {
+          	 duty = parameters.duty_ratio;
+  //        	 if(voltage>=over_voltage)
+  //        	 {
+  //        		 parameters.mode = 5;
+  //        		 float temp = parameters.duty_ratio - 20;
+  //        		 parameters.duty_ratio = temp>0?temp:0;
+  //        	 }
+          	 transmit_data(x,x,duty);
+           }
+           else if(parameters.mode==1)
+           {
+
+
+                   if((voltage> (ref_voltage-delta)   &&  voltage < (ref_voltage +delta)))
+                   {
+
+                   }
+                   else if((voltage<(ref_voltage)))
+         	  	  {
+                 	  if(((ref_voltage- voltage)/(100) < 0.001))
+                 	  	  				 {
+                 	  	  			 duty = duty + 0.01;
+                 	  	  				 }
+                 	  else {duty = duty + ((ref_voltage- voltage)/(100))* alpha ;
+                 	  }
+
+
+         	  	  }
+         	  	  else if((voltage>(ref_voltage)))
+         	  	  {
+
+         	  		 if(((voltage- ref_voltage)/(100) < 0.001))
+         	  			  				 {
+         	  			  			 duty = duty - 0.01;
+         	  			  				 }
+         	  		 else{duty = duty - ((voltage- ref_voltage)/(100))* alpha ;}
+
+         	  	  }
+                   if(duty >= 58)
+                   {
+                 	  duty = 58;
+                   }
+                   if(duty<=30)
+                   {
+                 	  duty = 30;
+                   }
+
+                   TIM1->CCR1 = (int)(duty * 2000/100);
+                   TIM1->CCR2 = (int)((duty) * 2000/100);
+                   TIM1->CCR3 = (int)((duty) * 2000/100);
+
+                   sprintf(MSG, "duty ratio X = %d \r\n", (int)(duty*20));
+               transmit_data(x,x,duty);
+           }
+           else if(parameters.mode==2)
+           {
+          	 while(duty>0)
+          	 {
+          		 HAL_Delay(10);
+          		 duty =  duty - SOFT_START_STOP_DELTA;;
+          		 TIM1->CCR1=(int)(duty*20);
+          		 duty = duty/100;
+          		 transmit_data(x,x,duty);
+          		 if(duty<0)
+          		 {
+          			 duty = 0;
+          		 }
+
+          	 }
+
+           }
+           else if(parameters.mode==3)
+           {
+          	 while(duty<parameters.duty_ratio)
+          	 {
+
+          		 HAL_Delay(10);
+          		 duty = duty + SOFT_START_STOP_DELTA;
+          		 TIM1->CCR1=(int)(duty*20);
+          		 duty = duty/100;
+
+          		         duty = duty*100;
+
+          	 }
+                parameters.mode=0;
+                transmit_data(x,x,duty);
+
+           }
+
+               TIM1->CCR1 = (int)(duty * 2000/100);
+               TIM1->CCR2 = (int)((duty) * 2000/100);
+
+               TIM1->CCR3 = (int)(duty * 2000/100);
+
+
+               transmit_data(x,x,duty);
+         /* USER CODE END WHILE */
+
+         /* USER CODE BEGIN 3 */
+       }
+      /* USER CODE BEGIN 3 */
+    /* USER CODE END 3 */
   }
-  void receive_data()
-  {
-	  HAL_UART_Receive(&huart2, (uint8_t*)rBuffer, sizeof(rBuffer), 100);
-	  memcpy(&parameters,rBuffer,sizeof(parameters));
 
-  }
-  float read_Voltage()
-  {
-      int sum =0;
-
-      for (int i = 0; i < 5000; i++)
-      {
-          HAL_ADC_Start(&hadc1);
-          HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-          raw = HAL_ADC_GetValue(&hadc1);
-
-           sum += raw;
-      }
-
-
-
-      int temp = sum /5000;  // Adjust the divisor accordingly
-      voltage = mf * temp;
-      return voltage;
-  }
-  /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-    /* USER CODE END WHILE */
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-
-     while (1)
-     {
-    	 receive_data();
-    	 HAL_Delay(5);
-         float x = rand() % (410 - 340 + 1) + 340;
-         duty = duty/100;
-         x = read_Voltage();
-         duty = duty*100;
-         float voltage = x;
-         ref_voltage = parameters.ref_voltage;
-         alpha=parameters.kp;
-         if(parameters.mode==0)
-         {
-        	 duty = parameters.duty_ratio;
-//        	 if(voltage>=over_voltage)
-//        	 {
-//        		 parameters.mode = 5;
-//        		 float temp = parameters.duty_ratio - 20;
-//        		 parameters.duty_ratio = temp>0?temp:0;
-//        	 }
-        	 transmit_data(x,x,duty);
-         }
-         else if(parameters.mode==1)
-         {
-
-
-                 if((voltage> (ref_voltage-delta)   &&  voltage < (ref_voltage +delta)))
-                 {
-
-                 }
-                 else if((voltage<(ref_voltage)))
-       	  	  {
-               	  if(((ref_voltage- voltage)/(100) < 0.001))
-               	  	  				 {
-               	  	  			 duty = duty + 0.01;
-               	  	  				 }
-               	  else {duty = duty + ((ref_voltage- voltage)/(100))* alpha ;
-               	  }
-
-
-       	  	  }
-       	  	  else if((voltage>(ref_voltage)))
-       	  	  {
-
-       	  		 if(((voltage- ref_voltage)/(100) < 0.001))
-       	  			  				 {
-       	  			  			 duty = duty - 0.01;
-       	  			  				 }
-       	  		 else{duty = duty - ((voltage- ref_voltage)/(100))* alpha ;}
-
-       	  	  }
-                 if(duty >= 58)
-                 {
-               	  duty = 58;
-                 }
-                 if(duty<=30)
-                 {
-               	  duty = 30;
-                 }
-
-                 TIM1->CCR1 = (int)(duty * 2000/100);
-                 TIM1->CCR2 = (int)((duty) * 2000/100);
-                 TIM1->CCR3 = (int)((duty) * 2000/100);
-
-                 sprintf(MSG, "duty ratio X = %d \r\n", (int)(duty*20));
-             transmit_data(x,x,duty);
-         }
-         else if(parameters.mode==2)
-         {
-        	 while(duty>0)
-        	 {
-        		 HAL_Delay(10);
-        		 duty =  duty - SOFT_START_STOP_DELTA;;
-        		 TIM1->CCR1=(int)(duty*20);
-        		 duty = duty/100;
-        		 transmit_data(x,x,duty);
-        		 if(duty<0)
-        		 {
-        			 duty = 0;
-        		 }
-
-        	 }
-
-         }
-         else if(parameters.mode==3)
-         {
-        	 while(duty<parameters.duty_ratio)
-        	 {
-
-        		 HAL_Delay(10);
-        		 duty = duty + SOFT_START_STOP_DELTA;
-        		 TIM1->CCR1=(int)(duty*20);
-        		 duty = duty/100;
-
-        		         duty = duty*100;
-
-        	 }
-              parameters.mode=0;
-              transmit_data(x,x,duty);
-
-         }
-
-             TIM1->CCR1 = (int)(duty * 2000/100);
-             TIM1->CCR2 = (int)((duty) * 2000/100);
-
-             TIM1->CCR3 = (int)(duty * 2000/100);
-
-
-             transmit_data(x,x,duty);
-       /* USER CODE END WHILE */
-
-       /* USER CODE BEGIN 3 */
-     }
-    /* USER CODE BEGIN 3 */
-  /* USER CODE END 3 */
-}
 
 /**
   * @brief System Clock Configuration
@@ -391,7 +410,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -461,14 +480,10 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-
-  sConfigOC.Pulse = 1000;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
@@ -507,7 +522,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 1152000;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
