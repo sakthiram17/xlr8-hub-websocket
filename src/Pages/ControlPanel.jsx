@@ -138,6 +138,7 @@ const ControlPanel = () => {
         <div className="small-flex-box">
           <h2>Current Parameters</h2>
           <h3>Reference Voltage : {currentParamters.ref_voltage}V</h3>
+          <h3>Reference Current : {currentParamters.ref_current}mA</h3>
           <h3>Duty Ratio : {currentParamters.duty_ratio}</h3>
           <h3>Power Limit :{currentParamters.power_limit}W </h3>
           <h3>
@@ -147,6 +148,7 @@ const ControlPanel = () => {
           <h3>
             K<sub>i</sub> : {currentParamters.ki}{" "}
           </h3>
+          <h3>Mode :{currentParamters.mode}W </h3>
           {currentParamters.mode === 5 ? (
             <Modal code="error">OverVoltage Detected Manual Reset Needed</Modal>
           ) : null}

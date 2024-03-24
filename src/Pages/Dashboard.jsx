@@ -24,7 +24,8 @@ const brightColors = [
   "#00BFFF", // Dodger Blue
   "#DA70D6", // Orchid
   "#FFA500", // Orange
-  "#1E90FF",
+  "#1E90FF", 
+  "#7890FF"
 ];
 
 
@@ -36,6 +37,7 @@ const initialGraphRanges = [
   { min: -1, max: 100 },
   { min: -1, max: 100 },
   { min: -1, max: 100 },
+  { min: 0, max: 40 },
 ];function reduceArrayToFixedSize(dataArray, fixedSize) {
   // Step 1: Group data by time interval (e.g., hourly)
   const stepSize = Math.ceil(dataArray.length / fixedSize);
@@ -65,7 +67,7 @@ const initialGraphRanges = [
   return reducedArray;
 }
 
-const initialGraphHeights = [400, 400, 400, 400, 400, 400, 400];
+const initialGraphHeights = [400, 400, 400, 400, 400, 400, 400,400];
 const DashBoard = (props) => {
   const [spinner, setSpinner] = useState(null);
   const { dataPoints, dispatch } = useDataContext();
@@ -213,17 +215,6 @@ const DashBoard = (props) => {
     });
   }, [dataPoints, duration]);
 
-  let chartData;
-  if (fileteredData && fileteredData.length >= 1) {
-    chartData = fileteredData.map((ele) => {
-      return {
-        name: ele.time,
-        current: ele.current,
-        voltage: ele.voltage,
-        amt: ele.voltage,
-      };
-    });
-  }
 
   return (
     <div className="Dashboard-Page">
@@ -316,11 +307,32 @@ const DashBoard = (props) => {
         graphHeight={graphHeights[0]}
         graphRange={graphRanges[0]}
         Color={brightColors[0]}
-        yLabel={"Voltage"}
+        yLabel={"Output Voltage"}
         unit="V"
         index={0}
         dataKey={"voltage"}
       ></GraphContainer>
+      {dataPoints &&  dataPoints[0] && dataPoints[0].vin && <GraphContainer
+        handleSliderChange={handleSliderChange}
+        handleZoomChange={handleZoomChange}
+        is_small={is_small||small}
+        data={fileteredData.map((ele) => {
+          return {
+            name: ele.time,
+            voltage: ele.vin
+          };
+        })}
+        color="red"
+        graphHeight={graphHeights[7]}
+        graphRange={graphRanges[7]}
+        Color={brightColors[7]}
+        yLabel={"Input Voltage "}
+        unit="V"
+        index={7}
+        dataKey={"voltage"}
+      ></GraphContainer>
+
+      }
       <GraphContainer
         handleSliderChange={handleSliderChange}
         handleZoomChange={handleZoomChange}
@@ -409,7 +421,7 @@ const DashBoard = (props) => {
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
-            duty: ele.duty_ratio,
+            duty: ele.duty_ratio_2?ele.duty_ratio_2:ele.duty_ratio,
           };
         })}
         graphHeight={graphHeights[5]}
@@ -427,7 +439,7 @@ const DashBoard = (props) => {
         data={fileteredData.map((ele) => {
           return {
             name: ele.time,
-            duty: ele.duty_ratio,
+            duty: ele.duty_ratio_3?ele.duty_ratio_3:ele.duty_ratio,
           };
         })}
         graphHeight={graphHeights[6]}

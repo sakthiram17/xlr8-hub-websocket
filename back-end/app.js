@@ -151,27 +151,33 @@ let parameters = {
 let webSocketDataDispatcher;
 
 let buffer = "";
-
-const parser = port.pipe(new createInterface({ input:port,delimiter: '\n' }));
+if(process.argv[2]!=='stand-alone')
+{
+  const parser = port.pipe(new createInterface({ input:port,delimiter: '\n' }));
+}
 let dataObject = {
   voltage: 0,
   current: 0,
   duty_ratio: 0,
+  duty_ratio_2:null,
+  duty_ratio_3:null,
+  vin:0
 };
 
-const BASE_URL = process.env.BASE_URL;
-
+const BASE_URL = " https://controlhub-881eb-default-rtdb.firebaseio.com/";
+console.log(BASE_URL)
 function sendDataToSTM32(data) {
   // Assuming 'data' is an object with properties corresponding to the struct entireData
-  const buffer = Buffer.alloc(20); // Allocate a buffer of the appropriate size
+  const buffer = Buffer.alloc(28); // Allocate a buffer of the appropriate size
 
   // Write each property to the buffer using the correct data type and offset
   buffer.writeFloatLE(data.ref_voltage, 0);
   buffer.writeFloatLE(data.power_limit, 4);
   buffer.writeFloatLE(data.duty_ratio, 8);
   buffer.writeFloatLE(data.kp, 12);
-
   buffer.writeFloatLE(data.mode, 16);
+  buffer.writeFloatLE(data.ki, 20);
+  buffer.writeFloatLE(data.ref_current, 24);
   // Send the binary data to the STM32
   port.write(buffer, (err) => {
     if (err) {
@@ -241,16 +247,19 @@ if (arguments[2] != "stand-alone") {
   parser.on("data", (data) => {
     const sensorData = parseSensorData(data);
     if (sensorData) {
-      console.log(dataObject);
+      
     }
   });
   port.on("data", (data) => {
     let result = parseSensorData(data);
-    let voltage, current, duty_ratio;
+    let voltage, current, duty_ratio,duty_ratio_2,duty_ratio_3,vin;
     if (result) {
       voltage = result.voltage;
       current = result.current;
       duty_ratio = result.duty_ratio;
+      duty_ratio_2 = result.duty_ratio_2;
+      duty_ratio_3 = result.duty_ratio_3;
+      vin = result.vin;
 
       if (result.mode === 3) {
         parameters.mode = 0;
@@ -261,12 +270,16 @@ if (arguments[2] != "stand-alone") {
       voltage: voltage,
       current: current,
       duty_ratio: duty_ratio,
+      duty_ratio_2:duty_ratio_2,
+      duty_ratio_3:duty_ratio_3,
+      vin : vin
     };
 
     if (sensorData && !isNaN(sensorData.voltage)) {
       dataObject = { ...sensorData };
     }
-    console.log(sensorData);
+
+
   });
 }
 
@@ -275,7 +288,7 @@ const parseSensorData = (data) => {
   const buffer = Buffer.from(data, "hex");
   // Assuming the binary data is transmitted in hex format
 
-  if (buffer.length === 32) {
+  if (buffer.length === 40) {
     const data = {
       voltage: buffer.readFloatLE(0),
       current: buffer.readFloatLE(4),
@@ -284,8 +297,9 @@ const parseSensorData = (data) => {
       duty_ratio: buffer.readFloatLE(16),
       mode: buffer.readFloatLE(20),
       kp: buffer.readFloatLE(24),
-
       power_limit: buffer.readFloatLE(28),
+      ki:buffer.readFloatLE(32),
+      ref_current:buffer.readFloatLE(36),
     };
     return data;
   } else {
@@ -311,6 +325,9 @@ app.get("/sensor-data", (req, res) => {
   dataObject.voltage = Math.random() * 20 + 400;
   dataObject.current = Math.random() * 100 + 200;
   dataObject.duty_ratio = 50;
+  dataObject.duty_ratio_1 = 48;
+  dataObject.duty_ratio_2 = 45;
+  dataObject.vin = Math.random()*2+18;
   dataObject.current_time = new Date();
   res.json({ dataObject });
 });
@@ -343,8 +360,9 @@ app.post("/parameters", (req, res) => {
     parameters.power_limit = parseFloat(data.power_limit);
     parameters.duty_ratio = parseFloat(data.duty_ratio);
     parameters.kp = parseFloat(data.kp);
-    parameters.ki = 0;
+    parameters.ki = parseFloat(data.kp);
     parameters.mode = data.mode;
+    parameters.ref_current = parseFloat(data.ref_current);
 
     axios
       .patch(BASE_URL + "parameters.json", parameters)
@@ -428,7 +446,9 @@ function setupWebSocketDataDispatcher(socket) {
       dataObject.voltage = Math.random() * 100 + 280;
       dataObject.current = Math.random() * 100 + 300;
       dataObject.duty_ratio = 50;
-
+      dataObject.duty_ratio_2 = 70;
+      dataObject.duty_ratio_3 = 85;
+      dataObject.vin = Math.random()*2+18;
       dataObject.current_time = new Date();
     }
 
@@ -449,7 +469,7 @@ function setupWebSocketDataDispatcher(socket) {
           console.error("Error appending data:", err);
         } else {
           console.log("Data appended successfully!");
-          console.log(dataObject);
+          
         }
       });
     }

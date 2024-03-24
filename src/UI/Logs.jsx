@@ -323,6 +323,7 @@ const Logs = () => {
           <tr>
             <th>Voltage</th>
             <th>Current</th>
+            <th>Input Voltage</th>
             <th>Power</th>
             <th>Date</th>
             <th>Time</th>
@@ -350,6 +351,7 @@ const Logs = () => {
                 duty_ratio={ele.duty_ratio}
                 date={formattedDate}
                 time={formattedTime}
+                vin = {ele.vin?parseFloat(ele.vin).toFixed(2):0}
                 key={Math.random().toString(36).substring(2, 7)}
               ></Log>
             );
