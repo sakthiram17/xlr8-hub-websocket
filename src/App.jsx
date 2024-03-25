@@ -79,6 +79,7 @@ function App() {
             active={activePage}
             changePage={pageSwitchHandler}
             setSmall={updateIsSmall}
+            handleChange={handleChange}
           ></Navbar>
           <SideBar
             list={["Dashboard", "Control Panel", "DataHub", "Guide"]}
@@ -92,13 +93,7 @@ function App() {
             changePage={pageSwitchHandler}
           ></SideBar>
 
-          <Input
-            type="select"
-            label="Choose Data Channel"
-            options={["Reduced-Stress Cubic Boost Converter", "IBC with Enhanced QBC"]}
-            values = {["Converter-1","Converter-2"]}
-            handleChange = {handleChange}
-          ></Input>
+      
           {currentPage}
           <Backdrop off={offSideBar} on={sidebaron}></Backdrop>
         </CounterProvider>

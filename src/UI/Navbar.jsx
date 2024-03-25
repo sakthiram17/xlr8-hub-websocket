@@ -7,7 +7,7 @@ import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { useContext } from 'react';
 import ToggleButton from '../Pages/ToggleButton.jsx';
-
+import Input from '../Pages/Input.jsx';
 /*
 Guide to Use this Navbar
 props 
@@ -78,10 +78,16 @@ const Navbar = (props)=>{
         <span className="header-f">{props.first}</span>
         <span className = "header-l">{props.last}</span>
         </div>
+        
         <ul type = "none">
         {navList}
-
-     
+        
+        <Input
+            type="select"
+            options={["Reduced-Stress Cubic Boost Converter", "IBC with Enhanced QBC"]}
+            values = {["Converter-1","Converter-2"]}
+            handleChange ={props.handleChange}
+          ></Input>
        
         </ul>
         </div>

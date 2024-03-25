@@ -164,6 +164,9 @@ body{
     padding:0;
 }
 @media only screen 
-and (max-device-width : 768px)  {
-  
+and (max-width : 900px)  {
+  .NavBar{
+    font-size: 1rem;
+    padding: 0.1rem;
+  }
 }

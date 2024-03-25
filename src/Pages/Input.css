@@ -140,6 +140,7 @@ select {
     border: black;
     margin: 1rem;
     border-radius: 5px;
+    width: min(30vw,300px);
     background-color:var(--primary-card-bg);
     cursor: pointer;
   }
