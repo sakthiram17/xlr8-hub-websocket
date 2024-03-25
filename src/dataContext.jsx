@@ -2,6 +2,7 @@ import React, { createContext, useReducer, useContext } from 'react';
 
 const actionHandler = (state,action)=>{
     let temp;  
+    console.log(action)
     switch(action.type)
     {
         case 'FETCH' : temp = [];

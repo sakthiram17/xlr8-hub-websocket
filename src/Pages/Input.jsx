@@ -95,8 +95,28 @@ const Input = (props) => {
           </Button>
         </div>
       </div>
-    );
-  } else {
+    );}
+  else if(props.type==='select')
+  {
+    let options = [];
+    for(var i =0 ;i<props.options.length;i++)
+    {
+      options.push(<option value={props.values[i]}>{props.options[i]}</option>)
+    }
+    return(
+      <div className={props.col ? "form-input-col" : "form-input"}>
+       <span className="form-label">{props.label}</span>
+       <select name = {props.label} value = {props.value} onChange={props.handleChange}>
+        {options}
+       </select>
+        
+      </div>
+
+    )
+
+  }
+
+   else {
     return (
       <div className={props.col ? "form-input-col" : "form-input"}>
         <span className="form-label">{props.label}</span>

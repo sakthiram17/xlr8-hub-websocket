@@ -121,11 +121,41 @@ input{
 }
 input[type="file"]
 {
-    font-size: 16px; /* Adjust the font size as needed */
-    position: absolute;
-    margin: -1px;
+font-size: 16px; /* Adjust the font size as needed */
+position: absolute;
+margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
   
 }
+select {
+    /* Remove default styles */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* Add custom styles */
+    padding: 10px;
+    font-size: 16px;
+    border: black;
+    margin: 1rem;
+    border-radius: 5px;
+    background-color:var(--primary-card-bg);
+    cursor: pointer;
+  }
+ 
+  
+  /* Style the dropdown arrow */
+  select::after {
+    content: '\25BC';
+    top: 50%;
+    color:white;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+  
+  /* Style when the select element is focused */
+  select:focus {
+    outline: none; /* Remove default focus style */
+    border-color: var(--accent-color) /* Example focus color */
+  }

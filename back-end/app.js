@@ -378,23 +378,73 @@ app.post("/parameters", (req, res) => {
     res.status(404).send({ message: "Parameters not within Range" });
   }
 });
+const topicSubscribers = {
+  'Converter-1' : new Set(),
+  'Converter-2' : new Set()
+};
+const  broadcast = (topic)=>
+{
+  const subscribers = topicSubscribers[topic];
 
+  if(subscribers)
+  {
+    subscribers.forEach((socket)=>{
+        socket.send(JSON.stringify(dataObject))
+    })
+  }
+}
 resolution = 200;
+let subscribers;
 const connectedClients = [];
 wss.on("connection", (socket) => {
   console.log("A user connected");
-  clearInterval(webSocketDataDispatcher);
-  connectedClients.push(socket);
-  webSocketDataDispatcher = setupWebSocketDataDispatcher(socket);
-  client = socket;
+  
+  socket.on('message', (msg)=>{
+    let topic;
+    let newTopic;
+    try{
+      const data = JSON.parse(msg)
+      topic = data;
+      console.log(data)
+      flag = true
+      console.log(socket)
+      for (const existingTopic in topicSubscribers) {
+        if (topicSubscribers[existingTopic].has(socket)) {
+          // If already subscribed, remove it from the existing subscription
+          topicSubscribers[existingTopic].delete(socket);
+          console.log(`Removed socket from topic ${existingTopic}`);
+        }
+      }
+      
+      topicSubscribers[topic.topic].add(socket);
+      if(!webSocketDataDispatcher)
+      {
+        webSocketDataDispatcher = setupWebSocketDataDispatcher();
+      }
 
-  socket.on("close", (code, reason) => {
-    console.log("User disconnected:", reason);
-    const index = connectedClients.indexOf(socket);
-    if (index !== -1) {
-      connectedClients.splice(index, 1);
     }
-    clearInterval(webSocketDataDispatcher);
+    catch(err)
+    {
+      console.log('Invalid topic')
+    }
+    if(!(topic.topic in topicSubscribers))
+    {
+      return socket.send(JSON.stringify({message : 'Invalid channel selected'}))
+    }
+    
+    
+   
+   
+  })
+
+
+  socket.on("close", (code, reason) => {  
+    // Clean up topic subscribers
+    for (const topic in topicSubscribers) {
+      if (topicSubscribers[topic].has(socket)) {
+        topicSubscribers[topic].delete(socket);
+      }
+    }
   });
 });
 
@@ -408,7 +458,7 @@ app.post("/resolution", (req, res) => {
     resolution = r.resolution;
 
     // Set up a new interval
-    webSocketDataDispatcher = setupWebSocketDataDispatcher(client);
+    webSocketDataDispatcher = setupWebSocketDataDispatcher();
     res.status(200).send({ message: "done" });
   }
   else{
@@ -435,13 +485,13 @@ app.post("/prompt", (req, res) => {
 
 const filePath = "data.txt";
 
-function setupWebSocketDataDispatcher(socket) {
+function setupWebSocketDataDispatcher() {
   return setInterval(() => {
     dataObject.current_time = new Date();
 
     let newDataString = JSON.stringify(dataObject, null, 2);
     newDataString = newDataString.trim();
-
+  
     if (process.argv[2] == "stand-alone") {
       dataObject.voltage = Math.random() * 100 + 280;
       dataObject.current = Math.random() * 100 + 300;
@@ -451,7 +501,34 @@ function setupWebSocketDataDispatcher(socket) {
       dataObject.vin = Math.random()*2+18;
       dataObject.current_time = new Date();
     }
-
+    const topicList= ['Converter-1','Converter-2']
+    for(let i = 0;i<topicList.length;i++)
+    {
+    if(topicList[i]==='Converter-1')
+    {
+      dataObject.voltage = Math.random() * 100 + 280;
+      dataObject.current = Math.random() * 100 + 300;
+      dataObject.duty_ratio = 50;
+      dataObject.duty_ratio_2 = 70;
+      dataObject.duty_ratio_3 = 85;
+      dataObject.vin = Math.random()*2+18;
+      dataObject.current_time = new Date();
+      
+    
+    }
+    if(topicList[i]==='Converter-2')
+    {
+      dataObject.voltage = Math.random() * 5 + 280;
+      dataObject.current = Math.random() * 10 + 300;
+      dataObject.duty_ratio = 50;
+      dataObject.duty_ratio_2 = 50;
+      dataObject.duty_ratio_3 = 50;
+      dataObject.vin = Math.random()*2+18;
+      dataObject.current_time = new Date();
+    }
+    broadcast(topicList[i])
+    
+  }
     if (!fs.existsSync(filePath)) {
       // If the file doesn't exist, create it and write the data
       fs.writeFile(filePath, newDataString + "^", (err) => {
@@ -472,10 +549,9 @@ function setupWebSocketDataDispatcher(socket) {
           
         }
       });
+  
     }
-    connectedClients.forEach((client) => {
-      client.send(JSON.stringify(dataObject));
-    });
+  
   }, resolution);
 }
 

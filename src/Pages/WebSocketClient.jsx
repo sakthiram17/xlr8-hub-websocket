@@ -5,7 +5,7 @@ import { useControlContext, ControlProvider } from '../Pages/controlContext.jsx'
 const WebSocketClient = (props) => {
     const { dispatch } = useDataContext();
     const { controlParameters, controlUpdates } = useControlContext();
-    let socket;
+    const [socket, setSocket] = useState(null);
     const [socketOpen, setSocketOpen] = useState(false);
 
     const autorefreshRef = useRef(controlParameters.autofresh);
@@ -18,14 +18,18 @@ const WebSocketClient = (props) => {
 
     useEffect(() => {
         const setUpConnection = () => {
-            socket = new WebSocket('ws://localhost:8080/');
+            
 
-            socket.addEventListener('open', (event) => {
+            const newSocket = new WebSocket('ws://localhost:8080/');
+            setSocket(newSocket)
+            newSocket.addEventListener('open', (event) => {
                 // Handle open event
                 setSocketOpen(true);
+                setSocket(newSocket); // Store the socket object
             });
-
-            socket.addEventListener('message', (event) => {
+                
+              
+            newSocket.addEventListener('message', (event) => {
                 const temp = JSON.parse(event.data);
                 console.log(autorefreshRef.current)
                 if (autorefreshRef.current) {
@@ -33,7 +37,7 @@ const WebSocketClient = (props) => {
                 }
             });
 
-            socket.addEventListener('close', (event) => {
+            newSocket.addEventListener('close', (event) => {
                 // Reconnect after a delay
                 setTimeout(() => {
                     setUpConnection();
@@ -43,15 +47,21 @@ const WebSocketClient = (props) => {
 
             return () => {
                 // Close the WebSocket connection
-                socket.close();
+                newSocket.close();
                 setSocketOpen(false);
             };
         };
 
         // Initial connection attempt
         setUpConnection();
-    }, []); // The empty dependency array ensures that this effect runs once after the initial render
-
+    }, [props.Channel]); // The empty dependency array ensures that this effect runs once after the initial render
+    useEffect(() => {
+        
+        if (socketOpen &&socket) {
+            const message = { topic: props.Channel };
+            socket.send(JSON.stringify(message));
+        }
+    }, [props.Channel, socketOpen]);
     return <div>{/* Your component JSX here */}</div>;
 };
 
