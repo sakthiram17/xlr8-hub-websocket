@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import Input from "./Input";
 import React from "react";
-const lineWidth = 3;
+const lineWidth = 1.5;
 
 const toolTipStyle = {
   backgroundColor: "rgba(135, 99, 255,0.5)",
@@ -168,6 +168,7 @@ const GraphContainer = ({
               strokeWidth={lineWidth}
               activeDot={{ r: 8 }}
               dot={false}
+              animationDuration={160} 
             />
           </LineChart>
          

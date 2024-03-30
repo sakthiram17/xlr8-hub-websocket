@@ -19,6 +19,7 @@
     box-shadow: 0 0 20px rgba(0,0,0,0.4);
     justify-content: center;
  align-items: center;
+ transition: 0.15s;
     
   }
   
@@ -37,9 +38,11 @@
     background-color:  var(--primary-card-bg);
     border-radius: .7rem;
     width: min(80vw,600px);
+    transition: 0.15s;
  
   }
   .control-panel *{
+    transition: 0.15s;
     font-size: 1.5rem;
   }
   .control-page{
@@ -48,6 +51,8 @@
     flex-direction: column;
     flex-flow: column wrap;
     align-items: center;
+    opacity: 1;
+    scale: 1;
     justify-content: space-evenly;
   }
   .control-page{
@@ -65,4 +70,13 @@
         font-size: 1rem;
       }
     /* Styles */
+  }
+  .disabled-anim{
+    opacity: 0.1;
+    transform: scale(0);
+    transition: 0.15s;
+  }
+  .enabled-anim{
+    opacity: 1;
+    transform: scale(1);
   }

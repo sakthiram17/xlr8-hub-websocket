@@ -18,6 +18,7 @@ const ControlPanel = () => {
   const { dataPoints, dispatch } = useDataContext();
   const [closedLoop, setClosedLoop] = useState(false);
   const [modalState, setModalState] = useState(null);
+  const [disabledClass,setDisabledClass] = useState('disabled-anim')
   const [spinner, setSpinner] = useState(null);
   const [currentParamters, setCurrentParameters] = useState({});
   const [formData, setFormData] = useState([400, 150, 50, 8, 3, 200]);
@@ -129,13 +130,18 @@ const ControlPanel = () => {
   useEffect(() => {
     setInterval(updateState, 500);
   }, []);
+  useEffect(()=>{
+    setTimeout(()=>{
+      setDisabledClass('enabled-anim')
+    },100)
+  })
 
   return (
-    <div className="control-page">
+    <div className='control-page'>
       {spinner}
 
       {currentParamters && (
-        <div className="small-flex-box">
+        <div className={"small-flex-box " + disabledClass}>
           <h2>Current Parameters</h2>
           <h3>Reference Voltage : {currentParamters.ref_voltage}V</h3>
           <h3>Reference Current : {currentParamters.ref_current}mA</h3>
@@ -155,7 +161,7 @@ const ControlPanel = () => {
         </div>
       )}
 
-      <div className="control-panel">
+      <div className={"control-panel " + disabledClass} >
         <ToggleButton
           label="Closed Loop"
           onChange={onChangeHandler}
@@ -327,7 +333,7 @@ const ControlPanel = () => {
           </Button>
         </div>
       </div>
-      <div className="widgets-2">
+      <div className={"widgets-2 "+disabledClass}>
         <Card
           header="Load Current"
           title="Current "

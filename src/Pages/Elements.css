@@ -74,6 +74,8 @@
     margin-top:10rem;
     justify-content: flex-start;
     width: 100vw;
+    transition: 0.15s;
+    opacity: 1;
     
   }
   input[type="datetime-local"] {
@@ -251,4 +253,9 @@ html{
   .flex-box-incol {
     flex-wrap: wrap; /* Wrap items when viewport is small */
   }
+}
+.data-card-disabled{
+  opacity: 0.1;
+  transform: scale(0.5);
+  transition: 0.1s;
 }

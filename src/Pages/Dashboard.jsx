@@ -69,8 +69,10 @@ const initialGraphRanges = [
 
 const initialGraphHeights = [400, 400, 400, 400, 400, 400, 400,400];
 const DashBoard = (props) => {
+  let data_card_class = "data-card-disabled";
   const [spinner, setSpinner] = useState(null);
   const { dataPoints, dispatch } = useDataContext();
+  const [dataCardClass,setDataCardClass] = useState('data-card-disabled')
   const [fileteredData, setFilteredData] = useState([]);
   const [isValid, setValidity] = useState(true);
   const [isValid2, setValidity2] = useState(true);
@@ -95,6 +97,14 @@ const DashBoard = (props) => {
       }
     });
   }, [width, getWidth]);
+  useEffect(()=>{
+    setTimeout(()=>{
+      setDataCardClass('data-card')
+    },20)
+    return ()=>{
+      setDataCardClass('data-card-disabled')
+    }
+  },[])
 
   const toggleButtonHandler = (isChecked) => {
     controlUpdates({ type: 'update', data: { ...controlParameters, autofresh: isChecked } });
@@ -223,7 +233,7 @@ const DashBoard = (props) => {
       className="flex-box-incol"
       >
    
-      <div className="data-card">
+      <div className={dataCardClass}>
         <div className="generic-text-label">Resolution : {sampleSize} ms</div>
         <div className="generic-text-label">DataPoints : {duration}</div>
         {duration > maxSamples ? (
@@ -241,7 +251,7 @@ const DashBoard = (props) => {
           justifyContent: "center",
           alignItems: "center",
         }}
-        className="data-card"
+        className={dataCardClass}
       >
         <ToggleButton
           label="AutoRefresh"

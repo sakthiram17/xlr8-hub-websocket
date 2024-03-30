@@ -9,6 +9,7 @@ import ToggleButton from "../Pages/ToggleButton";
 import Input from "../Pages/Input.jsx";
 import { useControlContext } from "../Pages/controlContext.jsx";
 const TABLE_LENGTH = 20;
+
 const Logs = () => {
   const SECTION_SIZE = 8;
   const { dataPoints, dispatch } = useDataContext();
@@ -23,6 +24,8 @@ const Logs = () => {
   const [filterZeros, setFilterZeros] = useState(false);
   const { controlParameters, controlUpdates } = useControlContext();
   const [errorModal, setErrorModal] = useState(null);
+  const [disabletable,setDisabletable]= useState('disabled-anim')
+  const [disabledClass,setDisabledClass] = useState('disabled-anim')
   const switchHandler = (event) => {
     setJson(event.target.checked);
   };
@@ -275,10 +278,23 @@ const Logs = () => {
       console.log(DateToString(endDa));
     }
   }, []);
+  useEffect(()=>{
+    setTimeout(()=>{
+      setDisabledClass('enabled-anim')
+      setDisabletable('enabled-anim')
+    },100)
+  })
+  useEffect(()=>{
+    setDisabletable('disabled-anim')
+    setTimeout(()=>{
+      setDisabletable('enabled-anim')
+    },100)
+
+  },[currentPage])
 
   return (
-    <div className="logs">
-      <div className="data-card">
+    <div className={"logs "+disabledClass}>
+      <div className={"data-card "+disabledClass}>
         <span className="checkbox-label">Data Fetcher</span>
         <Input
           type="file"
@@ -318,7 +334,7 @@ const Logs = () => {
         autorefresh={isOutliersOnly}
         onChange={dataPointsSwitchHandler}
       ></ToggleButton>
-      <table class="styled-table">
+      <table class={"styled-table " +disabletable}>
         <thead>
           <tr>
             <th>Voltage</th>
@@ -358,7 +374,7 @@ const Logs = () => {
           })}
         </tbody>
       </table>
-      <ul className="page-crumbs">
+      <ul className={"page-crumbs "+disabledClass}>
         {pageCrumbs}
         <Input
           type="number"
@@ -387,6 +403,7 @@ const Logs = () => {
           marginBottom: "5rem",
           width: "min(95vw,1200px)",
         }}
+        className={disabledClass}
       >
         <ToggleButton
           label={json ? "json" : "xlsx"}
