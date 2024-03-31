@@ -162,13 +162,13 @@ const GraphContainer = ({
             <CartesianGrid strokeDasharray="3 3" />
             <Legend />
             <Line
+              isStepper ={false}
               type="monotone"
               dataKey={dataKey}
               stroke={Color}
               strokeWidth={lineWidth}
               activeDot={{ r: 8 }}
               dot={false}
-              animationDuration={160} 
             />
           </LineChart>
          

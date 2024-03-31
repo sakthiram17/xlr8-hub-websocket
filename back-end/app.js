@@ -434,7 +434,7 @@ app.post("/prompt", (req, res) => {
 });
 
 const filePath = "data.txt";
-
+const dataConnectedClient = new Set();
 function setupWebSocketDataDispatcher(socket) {
   return setInterval(() => {
     dataObject.current_time = new Date();
@@ -473,7 +473,8 @@ function setupWebSocketDataDispatcher(socket) {
         }
       });
     }
-    connectedClients.forEach((client) => {
+    dataConnectedClient.add(socket)
+    dataConnectedClient.forEach((client) => {
       client.send(JSON.stringify(dataObject));
     });
   }, resolution);

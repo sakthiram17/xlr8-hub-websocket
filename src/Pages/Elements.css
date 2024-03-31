@@ -256,6 +256,6 @@ html{
 }
 .data-card-disabled{
   opacity: 0.1;
-  transform: scale(0.5);
+  transform: scale(0);
   transition: 0.1s;
 }

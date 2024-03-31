@@ -101,9 +101,7 @@ const DashBoard = (props) => {
     setTimeout(()=>{
       setDataCardClass('data-card')
     },20)
-    return ()=>{
-      setDataCardClass('data-card-disabled')
-    }
+
   },[])
 
   const toggleButtonHandler = (isChecked) => {
