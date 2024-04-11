@@ -292,14 +292,8 @@ const parseSensorData = (data) => {
     const data = {
       voltage: buffer.readFloatLE(0),
       current: buffer.readFloatLE(4),
-      set_duty: buffer.readFloatLE(8),
-      ref_voltage: buffer.readFloatLE(12),
-      duty_ratio: buffer.readFloatLE(16),
-      mode: buffer.readFloatLE(20),
-      kp: buffer.readFloatLE(24),
-      power_limit: buffer.readFloatLE(28),
-      ki:buffer.readFloatLE(32),
-      ref_current:buffer.readFloatLE(36),
+      duty_ratio: buffer.readFloatLE(8),
+      mode: buffer.readFloatLE(12),
     };
     return data;
   } else {

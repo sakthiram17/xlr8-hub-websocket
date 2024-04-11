@@ -11,14 +11,12 @@
   --navtext: black;
   --navtext-alt: #8763ff;
   --card-bg: rgba(247, 247, 255, 0.5);
-  --primary-text: white;
   --card-hover: #ff1600;
   --accent-color: #8763ff;
   --primary-card-bg: whitesmoke;
-  --main-bg: white; /* Duplicate entry, removed */
-  --primary-text: black;
+  --main-bg: white;
+ 
   --card-shadow: 0px 1px 1px rgba(9, 30, 66, 0.25), 0px 0px 1px 1px rgba(9, 30, 66, 0.13);
-  /* Duplicate entry, removed */
 }
 
   *{
