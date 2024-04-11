@@ -104,7 +104,7 @@ const Navbar = (props)=>{
             root.style.setProperty('--card-hover', '#ff1600');
             root.style.setProperty('--accent-color', '#8763ff');
             root.style.setProperty('--primary-card-bg', 'whitesmoke');
-            root.style.setProperty('--main-bg', 'white');
+            root.style.setProperty('--main-bg', 'whitesmoke');
             root.style.setProperty('--primary-text', 'black');
         
         }
