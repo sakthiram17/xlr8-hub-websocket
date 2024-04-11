@@ -35,6 +35,10 @@
     transition: .4s;
     width: 26px;
   }
+  .light .slider:before{
+    background-color: white;;
+  }
+  
 
   .checkbox-wrapper-22 input:checked + .slider {
     background-color:var(--accent-color);
@@ -43,7 +47,9 @@
   .checkbox-wrapper-22 input:checked + .slider:before {
     transform: translateX(26px);
   }
-
+  .light input:checked + .slider {
+    background-color:var(--accent-color);
+  }
   .checkbox-wrapper-22 .slider.round {
     border-radius: 34px;
   }
@@ -93,9 +99,9 @@
 }
 
 .data-card{
-  color:white;
+  color:var(--primary-text);
   background-color: var(--primary-card-bg);
-  box-shadow: rgba(0,0,0,0.5) 2px 2px 4px;
+  box-shadow: var(--card-shadow);
   border-radius: 10px;
   padding: 20px;
   width: min(500px,80vw);
@@ -127,9 +133,7 @@ and (max-device-width : 768px)
     }
   /* Styles */
 }
-html{
-  background-color: white;
-}
+
 .prompt-response-box{
   background-color: var(--primary-card-bg);
   width: min(90vw,800px);
@@ -187,9 +191,10 @@ html{
   transition: 0.4s;
   opacity: 1;
   transform: scale(1);
+
 }
 .guide-page{
-  border: 1px solid black;
+
   border-radius: 8px;
 
   padding: 20px;
@@ -209,6 +214,7 @@ html{
   display: block;
   border-radius: 1rem;
   font-size: 1.3rem;
+  box-shadow: var(--card-shadow);
 }
 .avatar {
   width: 80px; /* Adjust the size as needed */

@@ -47,7 +47,7 @@ const Logs = () => {
     setFilterZeros(event);
   };
   const dataPointsSwitchHandler = (event) => {
-    setOutliersOnly(event.target.checked);
+    setOutliersOnly(event);
   };
   const handleDateChange = (event) => {
     setStartDate(new Date(event.target.value));

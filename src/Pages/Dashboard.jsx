@@ -17,7 +17,7 @@ import GraphContainer from "./GraphContainer.jsx";
 const SERVER = constants.SERVER;
 const BASE_URL = constants.SERVER;
 const MAX_LENGTH = 750;
-const brightColors = [
+let brightColors = [
   "#FF6384", // Salmon Pink
   "#FFD700", // Gold
   "#32CD32", // Lime Green
@@ -27,7 +27,20 @@ const brightColors = [
   "#1E90FF", 
   "#7890FF"
 ];
+let alternativeColors = [
+  "#d63b5c", // Darker Salmon Pink
+  "#d69900", // Darker Gold
+  "#258026", // Darker Lime Green
+  "#006dae", // Darker Dodger Blue
+  "#a754af", // Darker Orchid
+  "#d37500", // Darker Orange
+  "#1762a8", // Darker Dodger Blue
+  "#5971a8"  // Darker Light Slate Blue
+];
+brightColors=alternativeColors;
 
+
+brightColors=alternativeColors;
 
 const initialGraphRanges = [
   { min: 0, max: 600 },
@@ -87,16 +100,7 @@ const DashBoard = (props) => {
   const duration = controlParameters.duration;
   const sampleSize = controlParameters.sampleSize;
   const autofresh = controlParameters.autofresh;
-  useEffect(() => {
-    window.addEventListener("resize", () => {
-      getWidth(window.innerWidth);
-      if (width >= 768) {
-        setIsSmall(false);
-      } else {
-        setIsSmall(true);
-      }
-    });
-  }, [width, getWidth]);
+ 
   useEffect(()=>{
     setTimeout(()=>{
       setDataCardClass('data-card')
@@ -318,6 +322,7 @@ const DashBoard = (props) => {
         yLabel={"Output Voltage"}
         unit="V"
         index={0}
+        mf={6}
         dataKey={"voltage"}
       ></GraphContainer>
       {dataPoints &&  dataPoints[0] && dataPoints[0].vin && <GraphContainer
@@ -330,6 +335,7 @@ const DashBoard = (props) => {
             voltage: ele.vin
           };
         })}
+        mf={0.4}
         color="red"
         graphHeight={graphHeights[7]}
         graphRange={graphRanges[7]}
@@ -357,6 +363,7 @@ const DashBoard = (props) => {
         yLabel={"Load Current"}
         unit="mA"
         index={1}
+        mf={10}
         dataKey={"current"}
       ></GraphContainer>
       <GraphContainer
@@ -375,6 +382,7 @@ const DashBoard = (props) => {
         yLabel={"Power"}
         unit="W"
         index={2}
+        mf={3}
         dataKey={"power"}
       ></GraphContainer>
       <GraphContainer
@@ -399,6 +407,7 @@ const DashBoard = (props) => {
         type="PV"
         dataKey={"voltage"}
         index={3}
+        mf={6}
       ></GraphContainer>
 
       <div>
@@ -420,6 +429,7 @@ const DashBoard = (props) => {
         yLabel={"Switch S\u2081"}
         unit="%"
         index={4}
+        mf={1}
         dataKey={"duty"}
       ></GraphContainer>
       <GraphContainer
@@ -439,6 +449,7 @@ const DashBoard = (props) => {
         unit="%"
         dataKey={"duty"}
         index={5}
+        mf={1}
       ></GraphContainer>
       <GraphContainer
         handleSliderChange={handleSliderChange}
@@ -456,6 +467,7 @@ const DashBoard = (props) => {
         yLabel={"Switch S\u2083"}
         unit="%"
         index={6}
+        mf={1}
         dataKey={"duty"}
       ></GraphContainer>
     </div>

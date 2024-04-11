@@ -11,15 +11,19 @@
     --navtext:white;
     --navtext-alt :#8763ff;
     --card-bg : rgb(247, 247, 255,0.5);
-    --primary-text : whie;
+    --primary-text : black;
     --card-hover: #ff1600;
     --accent-color: #8763ff;
-    --primary-card-bg: #1F2124;;
-    
+    --primary-card-bg:whitesmoke;
+    --main-bg:black;
+    --card-shadow: 0px 1px 1px rgba(9, 30, 66, 0.25), 0px 0px 1px 1px rgba(9, 30, 66, 0.13);
   }
-  html{
-    background-color: black;
-    margin:0;padding:0;
+  *{
+    color:var(--primary-text);
+  }
+html{
+
+    background-color: var(--main-bg);
   }
 #root{
     top:0;
@@ -33,7 +37,6 @@ body{
 
 .NavBar{
     font-size:22px;
-    box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 4px;
  
     color:var(--navtext);
     padding: 20px;
@@ -45,7 +48,7 @@ body{
     top:0;
     margin:0;
     left:0;
-
+    z-index: 1;
     margin-bottom: 5rem;
 }
 .DarkModeIcon{
@@ -119,7 +122,7 @@ body{
 .NavbarElementAlt:hover,
 .NavbarElementAlt:active{
     transform: translateY(-5px);
-    color:white;
+    color:var(--navtext);
 }
 
 .NavBar button{
@@ -132,8 +135,7 @@ body{
     color: var(--accent-color);
     background-color: var(--accent-color);
     border-radius: 3px;
-    color:white;
-}
+    color:white}
 .Active:hover{
     color:white;
 }

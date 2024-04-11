@@ -158,10 +158,10 @@ html{
     margin-bottom: 2rem;
     padding:1rem;
     border-radius:5px;
-    box-shadow:0 0 15px 5px #000000;
+    box-shadow:var(--card-shadow);
     background-color: red;
     color:whitesmoke;
-    -size: 0.8rem;
+    font-size: 0.8rem;
 
     }
     .alert h3{

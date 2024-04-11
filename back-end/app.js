@@ -121,7 +121,7 @@ https://github.com/sakthiram17
 Frequently asked questions
 
 what is the input current it draws under nominal conidtions?
-ideally it should be drawing P/Iin = 150/18 but it draws around 9.5A with 85-90% efficiency
+ideally it should be drawing P/Iin = 150/18 but it draws around 9.4A with 90-92% efficiency
 what is the safe duty ratio?
 The converter is programmed to operate between 30-58% duty ratio but
 the max safe duty ratio depends on input voltage such the output voltage is 

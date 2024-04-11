@@ -2,7 +2,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import DashBoard from "./Pages/Dashboard.jsx";
 import Navbar from "./UI/Navbar.jsx";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import ControlPanel from "./Pages/ControlPanel.jsx";
 import { CounterProvider } from "./dataContext.jsx";
 import Backdrop from "./UI/Backdrop.jsx";
@@ -13,13 +13,15 @@ import { useControlContext, ControlProvider } from "./Pages/controlContext.jsx";
 import WebSocketClient from "./Pages/WebSocketClient.jsx";
 import ToggleButton from "./Pages/ToggleButton.jsx";
 import Input from "./Pages/Input.jsx";
-
+import { DarkModeProvider } from "./Pages/DarkModeContext.jsx";
+import { useDarkMode } from "./Pages/DarkModeContext.jsx";
 function App() {
   const [sidebaron, setSidebaron] = useState(false);
   const [small, setSmall] = useState(false);
   const [currentPage, setPage] = useState(
     <DashBoard small={small}></DashBoard>
   );
+
   const [activePage, setActivePage] = useState("Dashboard");
   const [autofresh, setAutoRefresh] = useState(false);
   const [Channel,setChannel] = useState("Converter-1")
@@ -41,7 +43,28 @@ function App() {
     setChannel(event.target.value)
     console.log(event.target.value)
   }
- console.log(Channel)
+  useEffect(() => {
+    // Modify CSS variables
+    const root = document.documentElement;
+
+    root.style.setProperty('--primary-nav', 'black');
+    root.style.setProperty('--secondary-text', '#f5cac2');
+    root.style.setProperty('--secondary-nav', '#8763ff');
+    root.style.setProperty('--primary-color', '#303179');
+    root.style.setProperty('--primary-color-50', 'rgba(48, 49, 121, 0.5)');
+    root.style.setProperty('--secondary-color', 'rgb(20, 24, 80)');
+    root.style.setProperty('--main-bg', '#ededed');
+    root.style.setProperty('--secondary-nav-50', 'rgba(48, 0, 193, 0.5)');
+    root.style.setProperty('--secondary-color-50', 'rgba(20, 24, 80, 0.5)');
+    root.style.setProperty('--navtext', 'rgb(0, 0, 0)');
+    root.style.setProperty('--navtext-alt', '#8763ff');
+    root.style.setProperty('--card-bg', 'rgba(247, 247, 255, 0.5)');
+    root.style.setProperty('--primary-text', 'white');
+    root.style.setProperty('--card-hover', '#ff1600');
+    root.style.setProperty('--accent-color', '#8763ff');
+    root.style.setProperty('--primary-card-bg', 'whitesmoke');
+
+  }, []);
 
   const pageSwitchHandler = (event) => {
     let page = event.target.innerHTML;
@@ -67,6 +90,7 @@ function App() {
 
   return (
     <div className="App">
+      <DarkModeProvider>
       <ControlProvider>
         <CounterProvider>
           <WebSocketClient Channel= {Channel}></WebSocketClient>
@@ -98,6 +122,7 @@ function App() {
           <Backdrop off={offSideBar} on={sidebaron}></Backdrop>
         </CounterProvider>
       </ControlProvider>
+      </DarkModeProvider>
     </div>
   );
 }

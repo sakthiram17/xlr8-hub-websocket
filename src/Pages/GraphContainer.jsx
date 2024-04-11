@@ -11,11 +11,10 @@ import {
 } from "recharts";
 import Input from "./Input";
 import React from "react";
-const lineWidth = 1.5;
+const lineWidth =2.5;
 
 const toolTipStyle = {
   backgroundColor: "rgba(135, 99, 255,0.5)",
-  color: "#8763ff",
   backdropFilter: "blur(4px)",
   border: "none",
   borderRadius: "1rem",
@@ -74,7 +73,8 @@ const GraphContainer = ({
   unit,
   type,
   index,
-  dataKey
+  dataKey,
+  mf
 }) => {
   let axisData = (
     <React.Fragment>
@@ -133,7 +133,7 @@ const GraphContainer = ({
           value={graphRange.min}
           type="slider"
           handleChange={(event) => {
-            handleZoomChange(index, parseInt(event.target.value * 6), "min");
+            handleZoomChange(index, parseInt(event.target.value * mf), "min");
           }}
         ></Input>
         <Input
@@ -145,7 +145,7 @@ const GraphContainer = ({
           value={graphRange.max}
           type="slider"
           handleChange={(event) => {
-            handleZoomChange(index, parseInt(event.target.value * 6), "max");
+            handleZoomChange(index, parseInt(event.target.value * mf), "max");
           }}
         ></Input></React.Fragment> :null}
         <ResponsiveContainer width="90%" height={graphHeight}>
