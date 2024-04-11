@@ -41,6 +41,27 @@ const Navbar = (props)=>{
       
     },
     [width,getWidth])
+
+    useEffect(()=>{
+        root.style.setProperty('--primary-nav', 'white');
+        root.style.setProperty('--secondary-text', '#f5cac2');
+        root.style.setProperty('--secondary-nav', '#8763ff');
+        root.style.setProperty('--primary-color', '#303179');
+        root.style.setProperty('--primary-color-50', 'rgba(48, 49, 121, 0.5)');
+        root.style.setProperty('--secondary-color', 'rgb(20, 24, 80)');
+        root.style.setProperty('--main-bg', '#ededed');
+        root.style.setProperty('--secondary-nav-50', 'rgba(48, 0, 193, 0.5)');
+        root.style.setProperty('--secondary-color-50', 'rgba(20, 24, 80, 0.5)');
+        root.style.setProperty('--navtext', 'black');
+        root.style.setProperty('--navtext-alt', '#8763ff');
+        root.style.setProperty('--card-bg', 'rgba(247, 247, 255, 0.5)');
+        root.style.setProperty('--primary-text', 'white');
+        root.style.setProperty('--card-hover', '#ff1600');
+        root.style.setProperty('--accent-color', '#8763ff');
+        root.style.setProperty('--primary-card-bg', 'whitesmoke');
+        root.style.setProperty('--main-bg', 'whitesmoke');
+        root.style.setProperty('--primary-text', 'black');
+    },[])
     useEffect(() => {
         // Modify CSS variables
         const root = document.documentElement;
@@ -83,7 +104,7 @@ const Navbar = (props)=>{
             root.style.setProperty('--card-hover', '#ff1600');
             root.style.setProperty('--accent-color', '#8763ff');
             root.style.setProperty('--primary-card-bg', 'whitesmoke');
-            root.style.setProperty('--main-bg', 'whitesmoke');
+            root.style.setProperty('--main-bg', 'white');
             root.style.setProperty('--primary-text', 'black');
         
         }
